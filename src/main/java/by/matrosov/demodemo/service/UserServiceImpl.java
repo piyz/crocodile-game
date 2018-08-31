@@ -7,6 +7,7 @@ import by.matrosov.demodemo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -19,6 +20,7 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private RoleRepository roleRepository;
 
+    @Transactional
     @Override
     public User registerNewUserAccount(User user) throws UserExistException {
         if (userExist(user.getUsername())){
