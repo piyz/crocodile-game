@@ -5,6 +5,7 @@ import by.matrosov.demodemo.model.User;
 import by.matrosov.demodemo.repository.RoleRepository;
 import by.matrosov.demodemo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -20,7 +21,9 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private RoleRepository roleRepository;
 
-    @Transactional
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+
     @Override
     public User registerNewUserAccount(User user) throws UserExistException {
         if (userExist(user.getUsername())){
@@ -29,7 +32,7 @@ public class UserServiceImpl implements UserService{
         }
         User newUser = new User();
         newUser.setUsername(user.getUsername());
-        newUser.setUsername(user.getPassword());
+        newUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         newUser.setRoles(new HashSet<>(Arrays.asList(roleRepository.findByRoleName("USER"))));
         return userRepository.save(newUser);
     }
