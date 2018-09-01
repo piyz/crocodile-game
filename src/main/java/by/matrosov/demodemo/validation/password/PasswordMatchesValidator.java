@@ -1,4 +1,4 @@
-package by.matrosov.demodemo.validation;
+package by.matrosov.demodemo.validation.password;
 
 import by.matrosov.demodemo.model.User;
 import javax.validation.ConstraintValidator;
@@ -14,6 +14,7 @@ public class PasswordMatchesValidator implements ConstraintValidator<PasswordMat
     @Override
     public boolean isValid(Object o, ConstraintValidatorContext constraintValidatorContext) {
         User user = (User) o;
-        return user.getPassword().equals(user.getMatchingPassword());
+        //return user.getPassword().equals(user.getMatchingPassword());
+        return true;
     }
 }

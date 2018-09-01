@@ -1,4 +1,4 @@
-package by.matrosov.demodemo.validation;
+package by.matrosov.demodemo.validation.username;
 
 
 import javax.validation.ConstraintValidator;

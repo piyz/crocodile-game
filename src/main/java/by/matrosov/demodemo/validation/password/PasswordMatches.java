@@ -1,4 +1,4 @@
-package by.matrosov.demodemo.validation;
+package by.matrosov.demodemo.validation.password;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

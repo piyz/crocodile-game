@@ -1,7 +1,6 @@
 package by.matrosov.demodemo.model;
 
-import by.matrosov.demodemo.validation.PasswordMatches;
-import by.matrosov.demodemo.validation.ValidUsername;
+import by.matrosov.demodemo.validation.username.ValidUsername;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -10,7 +9,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-@PasswordMatches
 public class User {
 
     @Id
@@ -28,11 +26,6 @@ public class User {
     @NotEmpty
     @NotNull
     private String password;
-
-    @NotEmpty
-    @NotNull
-    @Transient
-    private String matchingPassword;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "users_roles",
@@ -62,9 +55,5 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
-    }
-
-    public String getMatchingPassword() {
-        return matchingPassword;
     }
 }
