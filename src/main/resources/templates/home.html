@@ -2,35 +2,56 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Home page</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
     <body>
-    Hello service
 
-    <p th:text="${hi}"></p>
+        <p th:text="${hi}"></p>
 
-    <div th:if="${not #lists.isEmpty(listRooms)}">
-        <table>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Password</th>
-            </tr>
-            <tr th:each="room : ${listRooms}">
-                <td th:text="${room.roomId}"></td>
-                <td th:text="${room.roomName}"></td>
-                <td th:if="${room.password.isEmpty()}">NO</td>
-                <td th:if="${!room.password.isEmpty()}">YES</td>
-                <td>
-                    <a th:href="@{/room/join}">JOIN</a>
-                </td>
-            </tr>
-        </table>
+        <div th:if="${not #lists.isEmpty(listRooms)}">
+            <table>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Password</th>
+                </tr>
+                <tr th:each="room : ${listRooms}">
+                    <td th:text="${room.roomId}"></td>
+                    <td th:text="${room.roomName}"></td>
+                    <td th:if="${room.password.isEmpty()}">NO</td>
+                    <td th:if="${!room.password.isEmpty()}">YES</td>
+                    <td>
+                        <a th:href="@{/room/join}">JOIN</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
 
-    </div>
+        <div>
+            <div >
+                <span id="username" th:utext="${username}"></span>
+                <h3>Spring WebSocket Chat Demo</h3>
+            </div>
 
-    <form th:action="@{/logout}" method="post">
-        <button type="submit">Logout</button>
-    </form>
+            <hr/>
+
+            <div id="connecting">Connecting...</div>
+            <ul id="messageArea">
+            </ul>
+            <form>
+                <div>
+                    <input type="text" autocomplete="off" placeholder="Type a message..."/>
+                    <button type="submit">Send</button>
+                </div>
+            </form>
+        </div>
+
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Logout</button>
+        </form>
+
+        <script th:src="@{/js/main.js}"></script>
     </body>
 </html>

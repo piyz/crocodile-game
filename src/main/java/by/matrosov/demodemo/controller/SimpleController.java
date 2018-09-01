@@ -40,6 +40,9 @@ public class SimpleController {
         List<Room> rooms = roomService.getRooms();
         model.addAttribute("listRooms", rooms);
 
+        String username = principal.getName();
+        model.addAttribute("username", username);
+
         return "home";
     }
 
