@@ -1,7 +1,7 @@
 var connectingElement = document.querySelector('#connecting');
 var messageArea = document.querySelector('#messageArea');
-
-
+var messageForm = document.querySelector('#messageForm');
+var messageInput = document.querySelector('#message');
 
 var stompClient = null;
 var username = null;
@@ -23,10 +23,7 @@ function onConnected() {
     stompClient.subscribe('/topic/publicChatRoom', onMessageReceived);
 
     // Tell your username to the server
-    stompClient.send("/app/chat.addUser",
-        {},
-        JSON.stringify({sender: username, type: 'JOIN'})
-    );
+    stompClient.send("/app/chat.addUser", {}, JSON.stringify({sender: username, type: 'JOIN'}));
 
     connectingElement.classList.add('hidden');
 }
@@ -36,6 +33,20 @@ function onError(error) {
     connectingElement.style.color = 'red';
 }
 
+function sendMessage(event) {
+    var messageContent = messageInput.value.trim();
+    if (messageContent && stompClient){
+        var chatMessage = {
+            sender: username,
+            content: messageInput.value,
+            type: 'CHAT'
+        };
+        stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
+        messageInput.value = "";
+    }
+    event.preventDefault();
+}
+
 function onMessageReceived(payload) {
     var message = JSON.parse(payload.body);
     var messageElement = document.createElement("li");
@@ -43,6 +54,16 @@ function onMessageReceived(payload) {
     if (message.type === "JOIN"){
         messageElement.classList.add("event-message");
         message.content = message.sender + " joined";
+    }else if (message.type === "LEAVE"){
+        messageElement.classList.add("event-message");
+        message.content = message.sender + " left";
+    }else {
+        messageElement.classList.add("chat-message");
+        var usernameElement = document.createElement("strong");
+        usernameElement.classList.add("nickname");
+        var usernameText = document.createTextNode(message.sender);
+        usernameElement.appendChild(usernameText);
+        messageElement.appendChild(usernameElement);
     }
 
     var textElement = document.createElement("span");
@@ -53,3 +74,5 @@ function onMessageReceived(payload) {
     messageArea.appendChild(messageElement);
     messageArea.scrollTop = messageArea.scrollHeight;
 }
+
+document.addEventListener("submit", sendMessage, true);

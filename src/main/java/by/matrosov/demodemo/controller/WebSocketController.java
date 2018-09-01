@@ -16,4 +16,10 @@ public class WebSocketController {
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
         return chatMessage;
     }
+
+    @MessageMapping("/chat.sendMessage")
+    @SendTo("/topic/publicChatRoom")
+    public ChatMessage sendMessage(@Payload ChatMessage chatMessage){
+        return chatMessage;
+    }
 }

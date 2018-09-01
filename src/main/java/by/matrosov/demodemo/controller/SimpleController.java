@@ -35,12 +35,16 @@ public class SimpleController {
 
     @RequestMapping(value = "/home", method = RequestMethod.GET)
     public String hello(Model model, Principal principal){
-        model.addAttribute("hi", "You are logged in as " + principal.getName());
+        String username = principal.getName();
+
+        if (username == null || username.isEmpty()){
+            return "redirect:/login";
+        }
+
+        model.addAttribute("hi", "You are logged in as " + username);
 
         List<Room> rooms = roomService.getRooms();
         model.addAttribute("listRooms", rooms);
-
-        String username = principal.getName();
         model.addAttribute("username", username);
 
         return "home";

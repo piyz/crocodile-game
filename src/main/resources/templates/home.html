@@ -30,7 +30,7 @@
         </div>
 
         <div>
-            <div >
+            <div>
                 <span id="username" th:utext="${username}"></span>
                 <h3>Spring WebSocket Chat Demo</h3>
             </div>
@@ -41,8 +41,8 @@
             <ul id="messageArea">
             </ul>
             <form>
-                <div>
-                    <input type="text" autocomplete="off" placeholder="Type a message..."/>
+                <div id="messageForm">
+                    <input type="text" id="message" autocomplete="off" placeholder="Type a message..."/>
                     <button type="submit">Send</button>
                 </div>
             </form>
