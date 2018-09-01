@@ -9,7 +9,27 @@
 
     <p th:text="${hi}"></p>
 
-    <form th:action="@{/logout}"  method="post">
+    <div th:if="${not #lists.isEmpty(listRooms)}">
+        <table>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Password</th>
+            </tr>
+            <tr th:each="room : ${listRooms}">
+                <td th:text="${room.roomId}"></td>
+                <td th:text="${room.roomName}"></td>
+                <td th:if="${room.password.isEmpty()}">NO</td>
+                <td th:if="${!room.password.isEmpty()}">YES</td>
+                <td>
+                    <a th:href="@{/room/join}">JOIN</a>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+
+    <form th:action="@{/logout}" method="post">
         <button type="submit">Logout</button>
     </form>
     </body>

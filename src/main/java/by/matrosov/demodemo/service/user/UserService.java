@@ -1,4 +1,4 @@
-package by.matrosov.demodemo.service;
+package by.matrosov.demodemo.service.user;
 
 import by.matrosov.demodemo.exception.UserExistException;
 import by.matrosov.demodemo.model.User;

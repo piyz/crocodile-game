@@ -1,9 +1,10 @@
 package by.matrosov.demodemo.controller;
 
 import by.matrosov.demodemo.exception.UserExistException;
+import by.matrosov.demodemo.model.Room;
 import by.matrosov.demodemo.model.User;
-import by.matrosov.demodemo.service.UserService;
-import by.matrosov.demodemo.service.UserServiceImpl;
+import by.matrosov.demodemo.service.rooms.RoomService;
+import by.matrosov.demodemo.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,12 +17,16 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.List;
 
 @Controller
 public class SimpleController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RoomService roomService;
 
     @RequestMapping(value = {"/", "/login"}, method = RequestMethod.GET)
     public String index(){
@@ -31,6 +36,10 @@ public class SimpleController {
     @RequestMapping(value = "/home", method = RequestMethod.GET)
     public String hello(Model model, Principal principal){
         model.addAttribute("hi", "You are logged in as " + principal.getName());
+
+        List<Room> rooms = roomService.getRooms();
+        model.addAttribute("listRooms", rooms);
+
         return "home";
     }
 
@@ -57,6 +66,11 @@ public class SimpleController {
         }else {
             return new ModelAndView("successRegister", "user", user);
         }
+    }
+
+    @RequestMapping(value = "/room/join", method = RequestMethod.GET)
+    public String join2Room(){
+        return "room";
     }
 
     private User createUserAccount(User user, BindingResult result){

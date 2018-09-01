@@ -1,19 +1,19 @@
-package by.matrosov.demodemo.service;
+package by.matrosov.demodemo.service.user;
 
 import by.matrosov.demodemo.exception.UserExistException;
 import by.matrosov.demodemo.model.User;
 import by.matrosov.demodemo.repository.RoleRepository;
 import by.matrosov.demodemo.repository.UserRepository;
+import by.matrosov.demodemo.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.HashSet;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
