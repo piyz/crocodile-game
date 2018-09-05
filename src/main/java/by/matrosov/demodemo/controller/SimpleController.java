@@ -41,8 +41,6 @@ public class SimpleController {
             return "redirect:/login";
         }
 
-        model.addAttribute("hi", "You are logged in as " + username);
-
         List<Room> rooms = roomService.getRooms();
         model.addAttribute("listRooms", rooms);
         model.addAttribute("username", username);
@@ -73,11 +71,6 @@ public class SimpleController {
         }else {
             return new ModelAndView("successRegister", "user", user);
         }
-    }
-
-    @RequestMapping(value = "/room/join", method = RequestMethod.GET)
-    public String join2Room(){
-        return "room";
     }
 
     private User createUserAccount(User user, BindingResult result){

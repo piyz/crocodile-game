@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Home page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="/css/main.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
     <body>
 
-        <p th:text="${hi}"></p>
+        <p id="username" th:text="${username}"></p>
 
-        <div th:if="${not #lists.isEmpty(listRooms)}">
+        <div id="table" th:if="${not #lists.isEmpty(listRooms)}">
             <table>
                 <tr>
                     <th>Id</th>
@@ -18,34 +19,38 @@
                     <th>Password</th>
                 </tr>
                 <tr th:each="room : ${listRooms}">
-                    <td th:text="${room.roomId}"></td>
+                    <td th:text="${room.roomId}" id="roomId"></td>
                     <td th:text="${room.roomName}"></td>
                     <td th:if="${room.password.isEmpty()}">NO</td>
                     <td th:if="${!room.password.isEmpty()}">YES</td>
                     <td>
-                        <a th:href="@{/room/join}">JOIN</a>
+                        <button type="submit" th:value="${room.roomId}" onclick="connect(this)">JOIN</button>
                     </td>
                 </tr>
             </table>
         </div>
 
-        <div>
-            <div>
-                <span id="username" th:utext="${username}"></span>
-                <h3>Spring WebSocket Chat Demo</h3>
-            </div>
-
-            <hr/>
-
-            <div id="connecting">Connecting...</div>
-            <ul id="messageArea">
-            </ul>
-            <form>
-                <div id="messageForm">
-                    <input type="text" id="message" autocomplete="off" placeholder="Type a message..."/>
-                    <button type="submit">Send</button>
+        <div id="chat-page" class="hidden">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>Chatroom [<span id="room-id-display"></span>]</h2>
                 </div>
-            </form>
+                <div class="connecting">
+                    Connecting...
+                </div>
+                <ul id="messageArea">
+
+                </ul>
+                <form id="messageForm" name="messageForm" nameForm="messageForm">
+                    <div class="form-group">
+                        <div class="input-group clearfix">
+                            <input type="text" id="message" placeholder="Type a message... or /join [room-id] to join another room."
+                                   autocomplete="off" class="form-control"/>
+                            <button type="submit" class="primary">Send</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <form th:action="@{/logout}" method="post">
