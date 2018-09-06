@@ -1,6 +1,6 @@
 
 var roomInput;
-
+var username = document.querySelector('#username').innerHTML;
 var chatPage = document.querySelector('#chat-page');
 var messageForm = document.querySelector('#messageForm');
 var messageInput = document.querySelector('#message');
@@ -8,10 +8,10 @@ var messageArea = document.querySelector('#messageArea');
 var connectingElement = document.querySelector('.connecting');
 var roomIdDisplay = document.querySelector('#room-id-display');
 var tableForm = document.querySelector('#table');
+var unsubButton = document.querySelector('#unsub');
 
 var stompClient = null;
 var currentSubscription;
-var username = null;
 var path = null;
 
 var colors = [
@@ -19,10 +19,18 @@ var colors = [
     '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
 ];
 
+function unsub() {
+    currentSubscription.unsubscribe();
+
+    unsubButton.classList.add('hidden');
+    tableForm.classList.remove('hidden');
+    chatPage.classList.add('hidden');
+}
+
 function connect(event) {
     roomInput = event.value;
-    username = document.querySelector('#username').innerHTML;
 
+    unsubButton.classList.remove('hidden');
     tableForm.classList.add('hidden');
     chatPage.classList.remove('hidden');
 
@@ -30,7 +38,7 @@ function connect(event) {
     stompClient = Stomp.over(socket);
 
     stompClient.connect({}, onConnected, onError);
-    event.preventDefault();
+    //event.preventDefault();
 }
 
 // Leave the current room and enter a new one.
@@ -39,9 +47,7 @@ function enterRoom(roomId) {
     roomIdDisplay.textContent = roomId;
     path = `/app/chat/${roomId}`;
 
-    if (currentSubscription) {
-        currentSubscription.unsubscribe();
-    }
+
     currentSubscription = stompClient.subscribe(`/topic/${roomId}`, onMessageReceived);
 
     stompClient.send(`${path}/addUser`,

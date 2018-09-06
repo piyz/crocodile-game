@@ -10,6 +10,9 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+import org.springframework.web.socket.messaging.SessionSubscribeEvent;
+
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -23,6 +26,19 @@ public class WebSocketEventListener {
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
         logger.info("Received a new web socket connection");
+    }
+
+    @EventListener
+    public void handleWebSocketSubscribeListener(SessionSubscribeEvent event) {
+        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+        System.out.println(headerAccessor.getSessionId());
+        System.out.println(headerAccessor.getSubscriptionId());
+        System.out.println(headerAccessor.getDestination());
+        System.out.println(headerAccessor.getUser().getName());
+        // pwtgtupt
+        // sub-0
+        // /topic/2
+        // user
     }
 
     @EventListener
