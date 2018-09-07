@@ -49,6 +49,7 @@ function enterRoom(roomId) {
 
 
     currentSubscription = stompClient.subscribe(`/topic/${roomId}`, onMessageReceived);
+    //stompClient.subscribe('/user/queue/horray', onMessageReceived);
 
     stompClient.send(`${path}/addUser`,
         {},

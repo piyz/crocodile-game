@@ -20,6 +20,10 @@ public class WebSocketController {
     @MessageMapping("/chat/{roomId}/sendMessage")
     public void sendMessage(@DestinationVariable String roomId, @Payload ChatMessage chatMessage) {
         messagingTemplate.convertAndSend(format("/topic/%s", roomId), chatMessage);
+
+        //chatMessage.setSender("SYSTEM");
+        //chatMessage.setContent("Horray, " + principal.getName() + "!");
+        //messagingTemplate.convertAndSendToUser(principal.getName(), "/queue/horray", chatMessage);
     }
 
     @MessageMapping("/chat/{roomId}/addUser")
