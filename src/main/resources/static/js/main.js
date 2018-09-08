@@ -7,6 +7,7 @@ var messageInput = document.querySelector('#message');
 var messageArea = document.querySelector('#messageArea');
 var connectingElement = document.querySelector('.connecting');
 var roomIdDisplay = document.querySelector('#room-id-display');
+//var chooseIdDisplay = document.querySelector('#choose-id-display');
 var tableForm = document.querySelector('#table');
 var unsubButton = document.querySelector('#unsub');
 
@@ -25,6 +26,9 @@ function unsub() {
     unsubButton.classList.add('hidden');
     tableForm.classList.remove('hidden');
     chatPage.classList.add('hidden');
+
+    //clear chatting before
+    messageArea.innerHTML = '';
 }
 
 function connect(event) {
@@ -47,7 +51,7 @@ function enterRoom(roomId) {
     roomIdDisplay.textContent = roomId;
     path = `/app/chat/${roomId}`;
 
-
+    //stompClient.subscribe(`/topic/choose/${roomId}`, changeChoose);
     currentSubscription = stompClient.subscribe(`/topic/${roomId}`, onMessageReceived);
     //stompClient.subscribe('/user/queue/horray', onMessageReceived);
 
@@ -56,6 +60,11 @@ function enterRoom(roomId) {
         JSON.stringify({sender: username, type: 'JOIN'})
     );
 }
+/*
+function changeChoose(payload) {
+    chooseIdDisplay.textContent = JSON.parse(payload.body).content; //coming from server
+}
+ */
 
 function onConnected() {
     enterRoom(roomInput);

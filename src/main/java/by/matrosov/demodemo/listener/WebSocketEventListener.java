@@ -11,8 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
-
-import java.util.*;
+import org.springframework.web.socket.messaging.SessionUnsubscribeEvent;
 
 import static java.lang.String.format;
 
@@ -31,14 +30,34 @@ public class WebSocketEventListener {
     @EventListener
     public void handleWebSocketSubscribeListener(SessionSubscribeEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        System.out.println(headerAccessor.getSessionId());
-        System.out.println(headerAccessor.getSubscriptionId());
-        System.out.println(headerAccessor.getDestination());
-        System.out.println(headerAccessor.getUser().getName());
+
+        /*
+        if (!headerAccessor.getDestination().contains("choose")){
+            String roomid = headerAccessor.getDestination().split("/")[2];
+            ChatMessage chatMessage = new ChatMessage();
+            Random random = new Random();
+            chatMessage.setContent(String.valueOf(random.nextInt(66)));
+
+            messagingTemplate.convertAndSend(format("/topic/choose/%s", roomid), chatMessage);
+        }
+         */
+
+        //System.out.println(headerAccessor.getSessionId());
+        //System.out.println(headerAccessor.getSubscriptionId());
+        //System.out.println(headerAccessor.getDestination());
+        //System.out.println(headerAccessor.getUser().getName());
         // pwtgtupt
         // sub-0
         // /topic/2
         // user
+    }
+
+    @EventListener
+    public void handleWebSocketUnsubscribeListener(SessionUnsubscribeEvent event) {
+        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+
+        //remove roomId after left the room
+        headerAccessor.getSessionAttributes().remove("room_id");
     }
 
     @EventListener
