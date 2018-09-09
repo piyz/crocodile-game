@@ -7,9 +7,13 @@ var messageInput = document.querySelector('#message');
 var messageArea = document.querySelector('#messageArea');
 var connectingElement = document.querySelector('.connecting');
 var roomIdDisplay = document.querySelector('#room-id-display');
-//var chooseIdDisplay = document.querySelector('#choose-id-display');
+var guessIdDisplay = document.querySelector('#guess-id-display'); guessIdDisplay.textContent = "test";
 var tableForm = document.querySelector('#table');
 var unsubButton = document.querySelector('#unsub');
+
+var guessButton1 = document.querySelector('#guess-button-id-1');
+var guessButton2 = document.querySelector('#guess-button-id-2');
+var guessButton3 = document.querySelector('#guess-button-id-3');
 
 var stompClient = null;
 var currentSubscription;
@@ -51,19 +55,70 @@ function enterRoom(roomId) {
     roomIdDisplay.textContent = roomId;
     path = `/app/chat/${roomId}`;
 
-    //stompClient.subscribe(`/topic/choose/${roomId}`, changeChoose);
+    stompClient.subscribe(`/topic/${roomId}/changeGuess`, changeGuess); //impl unsubscribe
     currentSubscription = stompClient.subscribe(`/topic/${roomId}`, onMessageReceived);
-    //stompClient.subscribe('/user/queue/horray', onMessageReceived);
+    stompClient.subscribe('/user/queue/sendModal', getModalWindow);
 
     stompClient.send(`${path}/addUser`,
         {},
         JSON.stringify({sender: username, type: 'JOIN'})
     );
 }
-/*
-function changeChoose(payload) {
-    chooseIdDisplay.textContent = JSON.parse(payload.body).content; //coming from server
+
+function getModalWindow(payload) {
+    var message = JSON.parse(payload.body);
+
+    guessButton1.textContent = message.content.split(",")[0];
+    guessButton2.textContent = message.content.split(",")[1];
+    guessButton3.textContent = message.content.split(",")[2];
+
+    modal.style.display = "block";
 }
+
+guessButton1.onclick = function () {
+    stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : guessButton1.textContent}));
+    modal.style.display = "none";
+};
+
+guessButton2.onclick = function () {
+    stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : guessButton2.textContent}));
+    modal.style.display = "none";
+};
+
+guessButton3.onclick = function () {
+    stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : guessButton3.textContent}));
+    modal.style.display = "none";
+};
+
+function changeGuess(payload) {
+    guessIdDisplay.textContent = JSON.parse(payload.body).content;
+}
+
+// Get the modal
+var modal = document.querySelector('#myModal');
+// Get the button that opens the modal
+//var btn = document.getElementById("myBtn");
+// Get the <span> element that closes the modal
+//var span = document.getElementsByClassName("close")[0];
+// When the user clicks on the button, open the modal
+/*
+btn.onclick = function() {
+    modal.style.display = "block";
+};
+ */
+// When the user clicks on <span> (x), close the modal
+/*
+span.onclick = function() {
+    modal.style.display = "none";
+};
+ */
+// When the user clicks anywhere outside of the modal, close it
+/*
+window.onclick = function(event) {
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+};
  */
 
 function onConnected() {
@@ -107,6 +162,10 @@ function onMessageReceived(payload) {
     } else if (message.type === 'LEAVE') {
         messageElement.classList.add('event-message');
         message.content = message.sender + ' left!';
+    } else if (message.content === guessIdDisplay.textContent) {
+        messageElement.classList.add('event-message');
+        message.content = message.sender + ' type right answer!';
+        stompClient.send(`${path}/sendModal`, {}, JSON.stringify({sender: username}));
     } else {
         messageElement.classList.add('chat-message');
 

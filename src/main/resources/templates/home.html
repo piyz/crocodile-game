@@ -8,6 +8,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
     <body>
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <!--<span class="close">&times;</span>-->
+                <p>Some text in the Modal..</p>
+                <button id="guess-button-id-1"></button>
+                <button id="guess-button-id-2"></button>
+                <button id="guess-button-id-3"></button>
+            </div>
+        </div>
 
         <p id="username" th:text="${username}"></p>
 
@@ -34,7 +43,7 @@
             <div class="chat-container">
                 <div class="chat-header">
                     <h2>Chatroom [<span id="room-id-display"></span>]</h2>
-                    <!--<h2>Choose [<span id="choose-id-display"></span>]</h2>-->
+                    <h2>Guess [<span id="guess-id-display"></span>]</h2>
                 </div>
                 <div class="connecting">
                     Connecting...

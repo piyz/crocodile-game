@@ -9,6 +9,8 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 
+import java.security.Principal;
+
 import static java.lang.String.format;
 
 @Controller
@@ -37,5 +39,19 @@ public class WebSocketController {
         }
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
         messagingTemplate.convertAndSend(format("/topic/%s", roomId), chatMessage);
+    }
+
+    @MessageMapping("/chat/{roomId}/sendModal")
+    public void sendModalWindow(Principal principal){
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent("first,second,third");
+
+        System.out.println(principal.getName());
+        messagingTemplate.convertAndSendToUser(principal.getName(), "/queue/sendModal", chatMessage);
+    }
+
+    @MessageMapping("/chat/{roomId}/changeGuess")
+    public void changeGuess(@DestinationVariable String roomId, @Payload ChatMessage chatMessage){
+        messagingTemplate.convertAndSend(format("/topic/%s/changeGuess", roomId), chatMessage);
     }
 }
