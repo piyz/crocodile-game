@@ -7,7 +7,7 @@ var messageInput = document.querySelector('#message');
 var messageArea = document.querySelector('#messageArea');
 var connectingElement = document.querySelector('.connecting');
 var roomIdDisplay = document.querySelector('#room-id-display');
-var guessIdDisplay = document.querySelector('#guess-id-display'); guessIdDisplay.textContent = "test";
+var guessIdDisplay = document.querySelector('#guess-id-display'); guessIdDisplay.textContent = "test"; //test content
 var tableForm = document.querySelector('#table');
 var unsubButton = document.querySelector('#unsub');
 
@@ -16,7 +16,8 @@ var guessButton2 = document.querySelector('#guess-button-id-2');
 var guessButton3 = document.querySelector('#guess-button-id-3');
 
 var stompClient = null;
-var currentSubscription;
+var currentSubscription1;
+var currentSubscription2;
 var path = null;
 
 var colors = [
@@ -25,7 +26,8 @@ var colors = [
 ];
 
 function unsub() {
-    currentSubscription.unsubscribe();
+    currentSubscription1.unsubscribe();
+    currentSubscription2.unsubscribe();
 
     unsubButton.classList.add('hidden');
     tableForm.classList.remove('hidden');
@@ -55,9 +57,9 @@ function enterRoom(roomId) {
     roomIdDisplay.textContent = roomId;
     path = `/app/chat/${roomId}`;
 
-    stompClient.subscribe(`/topic/${roomId}/changeGuess`, changeGuess); //impl unsubscribe
-    currentSubscription = stompClient.subscribe(`/topic/${roomId}`, onMessageReceived);
     stompClient.subscribe('/user/queue/sendModal', getModalWindow);
+    currentSubscription2 = stompClient.subscribe(`/topic/${roomId}/changeGuess`, changeGuess);
+    currentSubscription1 = stompClient.subscribe(`/topic/${roomId}`, onMessageReceived);
 
     stompClient.send(`${path}/addUser`,
         {},
@@ -145,7 +147,12 @@ function sendMessage(event) {
             content: messageInput.value,
             type: 'CHAT'
         };
-        stompClient.send(`${path}/sendMessage`, {}, JSON.stringify(chatMessage));
+
+        if (chatMessage.content === guessIdDisplay.textContent) {
+            stompClient.send(`${path}/sendMessage`, {}, JSON.stringify({sender: username, type: 'GUESS'}));//no need cont
+        }else {
+            stompClient.send(`${path}/sendMessage`, {}, JSON.stringify(chatMessage));
+        }
     }
     messageInput.value = '';
     event.preventDefault();
@@ -162,10 +169,9 @@ function onMessageReceived(payload) {
     } else if (message.type === 'LEAVE') {
         messageElement.classList.add('event-message');
         message.content = message.sender + ' left!';
-    } else if (message.content === guessIdDisplay.textContent) {
+    } else if (message.type === "GUESS") {
         messageElement.classList.add('event-message');
         message.content = message.sender + ' type right answer!';
-        stompClient.send(`${path}/sendModal`, {}, JSON.stringify({sender: username}));
     } else {
         messageElement.classList.add('chat-message');
 

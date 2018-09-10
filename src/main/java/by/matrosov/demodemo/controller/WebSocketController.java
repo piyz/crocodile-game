@@ -20,12 +20,14 @@ public class WebSocketController {
     private SimpMessageSendingOperations messagingTemplate;
 
     @MessageMapping("/chat/{roomId}/sendMessage")
-    public void sendMessage(@DestinationVariable String roomId, @Payload ChatMessage chatMessage) {
-        messagingTemplate.convertAndSend(format("/topic/%s", roomId), chatMessage);
-
-        //chatMessage.setSender("SYSTEM");
-        //chatMessage.setContent("Horray, " + principal.getName() + "!");
-        //messagingTemplate.convertAndSendToUser(principal.getName(), "/queue/horray", chatMessage);
+    public void sendMessage(@DestinationVariable String roomId, @Payload ChatMessage chatMessage, Principal principal) {
+        if (chatMessage.getType() == ChatMessage.MessageType.CHAT){
+            messagingTemplate.convertAndSend(format("/topic/%s", roomId), chatMessage);
+        }else { //GUESS TYPE
+            messagingTemplate.convertAndSend(format("/topic/%s", roomId), chatMessage);
+            chatMessage.setContent("first,second,third"); //test content
+            messagingTemplate.convertAndSendToUser(principal.getName(), "/queue/sendModal", chatMessage);
+        }
     }
 
     @MessageMapping("/chat/{roomId}/addUser")
@@ -39,15 +41,6 @@ public class WebSocketController {
         }
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
         messagingTemplate.convertAndSend(format("/topic/%s", roomId), chatMessage);
-    }
-
-    @MessageMapping("/chat/{roomId}/sendModal")
-    public void sendModalWindow(Principal principal){
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent("first,second,third");
-
-        System.out.println(principal.getName());
-        messagingTemplate.convertAndSendToUser(principal.getName(), "/queue/sendModal", chatMessage);
     }
 
     @MessageMapping("/chat/{roomId}/changeGuess")

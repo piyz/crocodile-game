@@ -56,6 +56,14 @@ public class WebSocketEventListener {
     public void handleWebSocketUnsubscribeListener(SessionUnsubscribeEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 
+        //notify about left from the room
+        String username = (String) headerAccessor.getSessionAttributes().get("username");
+        String roomId = (String) headerAccessor.getSessionAttributes().get("room_id");
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(ChatMessage.MessageType.LEAVE);
+        chatMessage.setSender(username);
+        messagingTemplate.convertAndSend(format("/topic/%s", roomId), chatMessage);
+
         //remove roomId after left the room
         headerAccessor.getSessionAttributes().remove("room_id");
     }
