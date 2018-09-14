@@ -7,7 +7,7 @@ public class ChatMessage {
     private String sender;
 
     public enum MessageType{
-        CHAT,JOIN,LEAVE,GUESS
+        CHAT,JOIN,LEAVE,GUESS,DRAW
     }
 
     public MessageType getType() {

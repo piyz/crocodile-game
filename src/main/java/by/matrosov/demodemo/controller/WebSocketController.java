@@ -1,6 +1,8 @@
 package by.matrosov.demodemo.controller;
 
 import by.matrosov.demodemo.model.ChatMessage;
+import by.matrosov.demodemo.model.DrawMessage;
+import by.matrosov.demodemo.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -46,5 +48,17 @@ public class WebSocketController {
     @MessageMapping("/chat/{roomId}/changeGuess")
     public void changeGuess(@DestinationVariable String roomId, @Payload ChatMessage chatMessage){
         messagingTemplate.convertAndSend(format("/topic/%s/changeGuess", roomId), chatMessage);
+    }
+
+    @MessageMapping("/chat/{roomId}/draw")
+    public void draw(@DestinationVariable String roomId, @Payload ChatMessage chatMessage){
+        DrawMessage drawMessage = new DrawMessage();
+        drawMessage.setSender(chatMessage.getSender());
+        drawMessage.setX1(Float.parseFloat(chatMessage.getContent().split("#")[0].split(",")[0]));
+        drawMessage.setY1(Float.parseFloat(chatMessage.getContent().split("#")[0].split(",")[1]));
+        drawMessage.setX2(Float.parseFloat(chatMessage.getContent().split("#")[1].split(",")[0]));
+        drawMessage.setY2(Float.parseFloat(chatMessage.getContent().split("#")[1].split(",")[1]));
+
+        messagingTemplate.convertAndSend(format("/topic/%s/draw", roomId), drawMessage);
     }
 }

@@ -18,7 +18,63 @@ var guessButton3 = document.querySelector('#guess-button-id-3');
 var stompClient = null;
 var currentSubscription1;
 var currentSubscription2;
+var currentDrawSubscription;
 var path = null;
+
+var canvas  = document.getElementById('drawing');
+var context = canvas.getContext('2d');
+var width   = window.innerWidth;
+var height  = window.innerHeight;
+//var rect = canvas.getBoundingClientRect();
+
+document.addEventListener("DOMContentLoaded", function() {
+    var mouse = [false, false, [0,0], false];
+
+    // set canvas to full browser width/height
+    //canvas.width = width;
+    //canvas.height = height;
+
+    // register mouse event handlers
+    canvas.onmousedown = function(e){ mouse[0] = true; };
+    canvas.onmouseup = function(e){ mouse[0] = false; };
+
+    canvas.onmousemove = function(e) {
+        // normalize mouse position to range 0.0 - 1.0
+        var rect = canvas.getBoundingClientRect();
+        mouse[2][0] = (e.clientX - rect.left) / width;
+        mouse[2][1] = (e.clientY - rect.top) / height;
+        mouse[1] = true;
+    };
+
+    // main loop, running every 25ms
+    function mainLoop() {
+        // check if the user is drawing
+        if (mouse[0] && mouse[1] && mouse[3]) {
+            // send line to to the server
+            var drawMessage = JSON.stringify({
+                sender : username,
+                content : mouse[2].toString() + "#" + mouse[3].toString(),
+                type : 'DRAW'
+            });
+
+            stompClient.send(`${path}/draw`, {}, drawMessage);
+            mouse[1] = false;
+        }
+        mouse[3] = [mouse[2][0], mouse[2][1]];
+        //mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y};
+        setTimeout(mainLoop, 25);
+    }
+    mainLoop();
+});
+
+function onDraw(payload){
+    var message = JSON.parse(payload.body);
+    context.beginPath();
+    context.moveTo(message.x1 * width, message.y1 * height);
+    context.lineTo(message.x2 * width, message.y2 * height);
+    context.stroke();
+    //0.4449152542372881,0.18916155419222905#0.4449152542372881,0.18507157464212678
+}
 
 var colors = [
     '#2196F3', '#32c787', '#00BCD4', '#ff5652',
@@ -28,7 +84,9 @@ var colors = [
 function unsub() {
     currentSubscription1.unsubscribe();
     currentSubscription2.unsubscribe();
+    currentDrawSubscription.unsubscribe();
 
+    canvas.classList.add('hidden');
     unsubButton.classList.add('hidden');
     tableForm.classList.remove('hidden');
     chatPage.classList.add('hidden');
@@ -40,6 +98,7 @@ function unsub() {
 function connect(event) {
     roomInput = event.value;
 
+    canvas.classList.remove('hidden');
     unsubButton.classList.remove('hidden');
     tableForm.classList.add('hidden');
     chatPage.classList.remove('hidden');
@@ -58,6 +117,7 @@ function enterRoom(roomId) {
     path = `/app/chat/${roomId}`;
 
     stompClient.subscribe('/user/queue/sendModal', getModalWindow);
+    currentDrawSubscription = stompClient.subscribe(`/topic/${roomId}/draw`, onDraw);
     currentSubscription2 = stompClient.subscribe(`/topic/${roomId}/changeGuess`, changeGuess);
     currentSubscription1 = stompClient.subscribe(`/topic/${roomId}`, onMessageReceived);
 
