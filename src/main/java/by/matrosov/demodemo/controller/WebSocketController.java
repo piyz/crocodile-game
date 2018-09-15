@@ -2,6 +2,7 @@ package by.matrosov.demodemo.controller;
 
 import by.matrosov.demodemo.model.ChatMessage;
 import by.matrosov.demodemo.model.DrawMessage;
+import by.matrosov.demodemo.service.game.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -20,9 +21,12 @@ public class WebSocketController {
     @Autowired
     private SimpMessageSendingOperations messagingTemplate;
 
+    @Autowired
+    private GameService gameService;
+
     @MessageMapping("/chat/{roomId}/sendMessage")
-    public void sendMessage(@DestinationVariable String roomId, @Payload ChatMessage chatMessage, Principal principal) {
-        messagingTemplate.convertAndSend(format("/topic/%s", roomId), chatMessage);
+    public void sendMessage(@DestinationVariable String roomId, @Payload ChatMessage chatMessage) {
+        messagingTemplate.convertAndSend(format("/topic/%s/public", roomId), chatMessage);
     }
 
     @MessageMapping("/chat/{roomId}/changeDrawUser")
@@ -32,7 +36,7 @@ public class WebSocketController {
         String prevUser = chatMessage.getContent();
 
         //send message to the chat
-        messagingTemplate.convertAndSend(format("/topic/%s", roomId), chatMessage);
+        messagingTemplate.convertAndSend(format("/topic/%s/public", roomId), chatMessage);
 
         //send modal window
         chatMessage.setContent("first,second,third");
@@ -40,9 +44,15 @@ public class WebSocketController {
 
         //set prev user to disable canvas
         if (prevUser != null){
-            System.out.println("HERE " + prevUser);
             messagingTemplate.convertAndSendToUser(prevUser, "/queue/canvas", chatMessage);
+
+            //add score
+            gameService.addScore(prevUser, principal.getName(), roomId);
+            gameService.print();
         }
+
+        //take next user from map && replace current on next
+        //if prev = null -> get[0]
 
         // set current user to DRAWING
         messagingTemplate.convertAndSend(format("/topic/%s/changeDrawUser", roomId), chatMessage);
@@ -58,10 +68,10 @@ public class WebSocketController {
             ChatMessage leaveMessage = new ChatMessage();
             leaveMessage.setType(ChatMessage.MessageType.LEAVE);
             leaveMessage.setSender(chatMessage.getSender());
-            messagingTemplate.convertAndSend(format("/topic/%s", currentRoomId), leaveMessage);
+            messagingTemplate.convertAndSend(format("/topic/%s/public", currentRoomId), leaveMessage);
         }
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
-        messagingTemplate.convertAndSend(format("/topic/%s", roomId), chatMessage);
+        messagingTemplate.convertAndSend(format("/topic/%s/public", roomId), chatMessage);
     }
 
     @MessageMapping("/chat/{roomId}/changeGuess")

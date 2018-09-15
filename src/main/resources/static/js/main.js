@@ -122,7 +122,7 @@ function enterRoom(roomId) {
     stompClient.subscribe('/user/queue/sendModal', getModalWindow);
     currentDrawSubscription = stompClient.subscribe(`/topic/${roomId}/draw`, onDraw);
     currentSubscription2 = stompClient.subscribe(`/topic/${roomId}/changeGuess`, changeGuess);
-    currentSubscription1 = stompClient.subscribe(`/topic/${roomId}`, onMessageReceived);
+    currentSubscription1 = stompClient.subscribe(`/topic/${roomId}/public`, onMessageReceived);
     currentSubscription3 = stompClient.subscribe(`/topic/${roomId}/changeDrawUser`, onChangeDrawUser);
 
     stompClient.send(`${path}/addUser`,
@@ -132,7 +132,6 @@ function enterRoom(roomId) {
 }
 
 function onCanvas() {
-    //canvas.style['pointer-events'] = 'none';
     if (canvas.style['pointer-events'] === 'none'){
         canvas.style['pointer-events'] = "auto";
     } else {
@@ -148,6 +147,8 @@ function onChangeDrawUser(payload) {
     drawUser = message.sender;
 
     dru.innerText = message.sender;
+
+    //impl clear canvas
 }
 
 function getModalWindow(payload) {
