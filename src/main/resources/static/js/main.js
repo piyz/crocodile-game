@@ -19,7 +19,9 @@ var stompClient = null;
 var currentSubscription1;
 var currentSubscription2;
 var currentSubscription3;
+var currentSubscription4;
 var currentDrawSubscription;
+var queueSubscription;
 var path = null;
 
 var canvas  = document.getElementById('drawing');
@@ -86,6 +88,7 @@ function unsub() {
     currentSubscription1.unsubscribe();
     currentSubscription2.unsubscribe();
     currentSubscription3.unsubscribe();
+    currentSubscription4.unsubscribe();
     currentDrawSubscription.unsubscribe();
 
     canvas.classList.add('hidden');
@@ -119,16 +122,30 @@ function enterRoom(roomId) {
     path = `/app/chat/${roomId}`;
 
     stompClient.subscribe('/user/queue/canvas', onCanvas);
-    stompClient.subscribe('/user/queue/sendModal', getModalWindow);
+    queueSubscription = stompClient.subscribe('/user/queue/sendModal', getModalWindow);
     currentDrawSubscription = stompClient.subscribe(`/topic/${roomId}/draw`, onDraw);
     currentSubscription2 = stompClient.subscribe(`/topic/${roomId}/changeGuess`, changeGuess);
     currentSubscription1 = stompClient.subscribe(`/topic/${roomId}/public`, onMessageReceived);
     currentSubscription3 = stompClient.subscribe(`/topic/${roomId}/changeDrawUser`, onChangeDrawUser);
+    currentSubscription4 = stompClient.subscribe(`/topic/${roomId}/end`, onEnd);
 
     stompClient.send(`${path}/addUser`,
         {},
         JSON.stringify({sender: username, type: 'JOIN'})
     );
+}
+
+function onEnd(payload) {
+    var message = JSON.parse(payload.body);
+
+    //result text
+    modalContent.appendChild(document.createElement('td').appendChild(document.createTextNode("THE END")));
+
+    guessIdDisplay.textContent = '';
+    endModal.style.display = "block";
+
+    //unsub from modal window unsub from all
+    queueSubscription.unsubscribe();
 }
 
 function onCanvas() {
@@ -182,6 +199,8 @@ function changeGuess(payload) {
 
 // Get the modal
 var modal = document.querySelector('#myModal');
+var endModal = document.querySelector('#endModal');
+var modalContent = document.getElementById("modal-cont");
 // Get the button that opens the modal
 //var btn = document.getElementById("myBtn");
 // Get the <span> element that closes the modal

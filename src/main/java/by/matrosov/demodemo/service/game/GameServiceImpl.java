@@ -33,11 +33,14 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public synchronized void addScore(String drawer, String guesser, String roomid) {
+    public synchronized boolean addScore(String drawer, String guesser, String roomid) {
         Map<String, Integer> innerMap = mapMap.get(roomid);
 
         innerMap.put(drawer, innerMap.get(drawer) + 5);
         innerMap.put(guesser, innerMap.get(guesser) + 6);
+
+        return innerMap.get(drawer) >= 10 || innerMap.get(guesser) >= 10;
+
     }
 
     @Override
