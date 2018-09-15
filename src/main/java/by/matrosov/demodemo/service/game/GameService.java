@@ -8,4 +8,5 @@ public interface GameService {
     void removeUser(String username, String roomid);
     boolean addScore(String drawer, String guesser, String roomid);
     void print();
+    String getNextUser(String username, String roomid);
 }

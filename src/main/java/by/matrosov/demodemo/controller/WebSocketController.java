@@ -35,6 +35,12 @@ public class WebSocketController {
         //get prev user
         String prevUser = chatMessage.getContent();
 
+        //next user
+        String name;
+
+        //send message to the chat
+        messagingTemplate.convertAndSend(format("/topic/%s/public", roomId), chatMessage);
+
         if (prevUser != null){
             //add score
             if (gameService.addScore(prevUser, principal.getName(), roomId)){
@@ -45,23 +51,21 @@ public class WebSocketController {
                 messagingTemplate.convertAndSendToUser(prevUser, "/queue/canvas", chatMessage);
             }
             gameService.print();
+            name = gameService.getNextUser(prevUser, roomId);
+        }else {
+            name = principal.getName();
         }
-
-        //send message to the chat
-        messagingTemplate.convertAndSend(format("/topic/%s/public", roomId), chatMessage);
-
-        //take next user from map && replace current on next
-        //if prev = null -> get[0]
 
         //send modal window
         chatMessage.setContent("first,second,third");
-        messagingTemplate.convertAndSendToUser(principal.getName(), "/queue/sendModal", chatMessage);
+        messagingTemplate.convertAndSendToUser(name, "/queue/sendModal", chatMessage);
 
         // set current user to DRAWING
+        chatMessage.setSender(name);
         messagingTemplate.convertAndSend(format("/topic/%s/changeDrawUser", roomId), chatMessage);
 
         //set current user to enable canvas
-        messagingTemplate.convertAndSendToUser(principal.getName(), "/queue/canvas", chatMessage);
+        messagingTemplate.convertAndSendToUser(name, "/queue/canvas", chatMessage);
     }
 
     @MessageMapping("/chat/{roomId}/addUser")

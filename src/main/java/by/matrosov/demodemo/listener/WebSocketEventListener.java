@@ -63,7 +63,6 @@ public class WebSocketEventListener {
 
             //remove from the map
             gameService.removeUser(username, roomId);
-            //gameService.print();
 
             //notify about left from the room
             ChatMessage chatMessage = new ChatMessage();
@@ -91,5 +90,7 @@ public class WebSocketEventListener {
 
             messagingTemplate.convertAndSend(format("/topic/%s/public", roomId), chatMessage);
         }
+
+        //TODO remove from the map
     }
 }

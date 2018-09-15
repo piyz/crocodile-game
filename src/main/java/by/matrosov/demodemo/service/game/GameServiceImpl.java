@@ -11,6 +11,7 @@ import java.util.Map;
 public class GameServiceImpl implements GameService{
 
     private static Map<String, Map<String, Integer>> mapMap = Collections.synchronizedMap(new HashMap<>());
+    private static final int FINAL_SCORE = 100;
 
     @Override
     public synchronized void addUser(String username, String roomid) {
@@ -39,12 +40,30 @@ public class GameServiceImpl implements GameService{
         innerMap.put(drawer, innerMap.get(drawer) + 5);
         innerMap.put(guesser, innerMap.get(guesser) + 6);
 
-        return innerMap.get(drawer) >= 10 || innerMap.get(guesser) >= 10;
+        return innerMap.get(drawer) >= FINAL_SCORE || innerMap.get(guesser) >= FINAL_SCORE;
 
     }
 
     @Override
     public synchronized void print() {
         mapMap.entrySet().forEach(System.out::println);
+    }
+
+    @Override
+    public synchronized String getNextUser(String username, String roomid) {
+        Map<String, Integer> innerMap = mapMap.get(roomid);
+
+        int i = 0;
+        Object[] users = innerMap.keySet().toArray();
+        while (true){
+            if (users[i].toString().equals(username)){
+                if (i + 1 == innerMap.size()){
+                    return users[0].toString();
+                }else {
+                    return users[i+1].toString();
+                }
+            }
+            i++;
+        }
     }
 }
