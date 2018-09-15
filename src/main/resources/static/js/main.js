@@ -28,7 +28,6 @@ var canvas  = document.getElementById('drawing');
 var context = canvas.getContext('2d');
 var width   = window.innerWidth;
 var height  = window.innerHeight;
-//var rect = canvas.getBoundingClientRect();
 
 document.addEventListener("DOMContentLoaded", function() {
     var mouse = [false, false, [0,0], false];
@@ -40,6 +39,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // register mouse event handlers
     canvas.onmousedown = function(e){ mouse[0] = true; };
     canvas.onmouseup = function(e){ mouse[0] = false; };
+    canvas.onmouseleave = function(e){ mouse[0] = false; };
 
     canvas.onmousemove = function(e) {
         // normalize mouse position to range 0.0 - 1.0

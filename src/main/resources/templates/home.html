@@ -25,7 +25,7 @@
         </div>
 
         <p id="username" th:text="${username}"></p>
-        <h3>Drawing[<p id="draw-user"></p>]</h3>
+        <!--<h3>Drawing[<p id="draw-user"></p>]</h3>-->
 
         <div id="table" th:if="${not #lists.isEmpty(listRooms)}">
             <table>
@@ -66,17 +66,16 @@
                             <input type="text" id="message" placeholder="Type a message... or /join [room-id] to join another room."
                                    autocomplete="off" class="form-control"/>
                             <button type="submit" class="primary">Send</button>
+
+                            <button id="unsub" type="submit" onclick="unsub()" class="hidden">To Main Menu</button>
+                            <form th:action="@{/logout}" method="post">
+                                <button type="submit">Logout</button>
+                            </form>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
-
-        <button id="unsub" type="submit" onclick="unsub()" class="hidden">Go Back</button>
-
-        <form th:action="@{/logout}" method="post">
-            <button type="submit">Logout</button>
-        </form>
 
         <script th:src="@{/js/main.js}"></script>
     </body>
