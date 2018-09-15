@@ -1,8 +1,6 @@
 package by.matrosov.demodemo.listener;
 
 import by.matrosov.demodemo.model.ChatMessage;
-import by.matrosov.demodemo.repository.RoomRepository;
-import by.matrosov.demodemo.service.GameService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +66,8 @@ public class WebSocketEventListener {
 
         //remove roomId after left the room
         headerAccessor.getSessionAttributes().remove("room_id");
+
+        //impl remove from map
     }
 
     @EventListener

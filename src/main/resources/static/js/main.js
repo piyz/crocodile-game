@@ -18,6 +18,7 @@ var guessButton3 = document.querySelector('#guess-button-id-3');
 var stompClient = null;
 var currentSubscription1;
 var currentSubscription2;
+var currentSubscription3;
 var currentDrawSubscription;
 var path = null;
 
@@ -84,6 +85,7 @@ var colors = [
 function unsub() {
     currentSubscription1.unsubscribe();
     currentSubscription2.unsubscribe();
+    currentSubscription3.unsubscribe();
     currentDrawSubscription.unsubscribe();
 
     canvas.classList.add('hidden');
@@ -116,15 +118,36 @@ function enterRoom(roomId) {
     roomIdDisplay.textContent = roomId;
     path = `/app/chat/${roomId}`;
 
+    stompClient.subscribe('/user/queue/canvas', onCanvas);
     stompClient.subscribe('/user/queue/sendModal', getModalWindow);
     currentDrawSubscription = stompClient.subscribe(`/topic/${roomId}/draw`, onDraw);
     currentSubscription2 = stompClient.subscribe(`/topic/${roomId}/changeGuess`, changeGuess);
     currentSubscription1 = stompClient.subscribe(`/topic/${roomId}`, onMessageReceived);
+    currentSubscription3 = stompClient.subscribe(`/topic/${roomId}/changeDrawUser`, onChangeDrawUser);
 
     stompClient.send(`${path}/addUser`,
         {},
         JSON.stringify({sender: username, type: 'JOIN'})
     );
+}
+
+function onCanvas() {
+    //canvas.style['pointer-events'] = 'none';
+    if (canvas.style['pointer-events'] === 'none'){
+        canvas.style['pointer-events'] = "auto";
+    } else {
+        canvas.style['pointer-events'] = 'none';
+    }
+}
+
+var drawUser = null;
+var dru = document.getElementById("draw-user");
+
+function onChangeDrawUser(payload) {
+    var message = JSON.parse(payload.body);
+    drawUser = message.sender;
+
+    dru.innerText = message.sender;
 }
 
 function getModalWindow(payload) {
@@ -209,7 +232,11 @@ function sendMessage(event) {
         };
 
         if (chatMessage.content === guessIdDisplay.textContent) {
-            stompClient.send(`${path}/sendMessage`, {}, JSON.stringify({sender: username, type: 'GUESS'}));//no need cont
+            stompClient.send(`${path}/changeDrawUser`, {}, JSON.stringify({
+                sender: username,
+                content : drawUser,
+                type: 'GUESS'
+            }));//no need cont
         }else {
             stompClient.send(`${path}/sendMessage`, {}, JSON.stringify(chatMessage));
         }

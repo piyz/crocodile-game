@@ -2,7 +2,6 @@ package by.matrosov.demodemo.controller;
 
 import by.matrosov.demodemo.model.ChatMessage;
 import by.matrosov.demodemo.model.DrawMessage;
-import by.matrosov.demodemo.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -23,13 +22,33 @@ public class WebSocketController {
 
     @MessageMapping("/chat/{roomId}/sendMessage")
     public void sendMessage(@DestinationVariable String roomId, @Payload ChatMessage chatMessage, Principal principal) {
-        if (chatMessage.getType() == ChatMessage.MessageType.CHAT){
-            messagingTemplate.convertAndSend(format("/topic/%s", roomId), chatMessage);
-        }else { //GUESS TYPE
-            messagingTemplate.convertAndSend(format("/topic/%s", roomId), chatMessage);
-            chatMessage.setContent("first,second,third"); //test content
-            messagingTemplate.convertAndSendToUser(principal.getName(), "/queue/sendModal", chatMessage);
+        messagingTemplate.convertAndSend(format("/topic/%s", roomId), chatMessage);
+    }
+
+    @MessageMapping("/chat/{roomId}/changeDrawUser")
+    public void changeDrawUser(@DestinationVariable String roomId, @Payload ChatMessage chatMessage, Principal principal){
+
+        //get prev user
+        String prevUser = chatMessage.getContent();
+
+        //send message to the chat
+        messagingTemplate.convertAndSend(format("/topic/%s", roomId), chatMessage);
+
+        //send modal window
+        chatMessage.setContent("first,second,third");
+        messagingTemplate.convertAndSendToUser(principal.getName(), "/queue/sendModal", chatMessage);
+
+        //set prev user to disable canvas
+        if (prevUser != null){
+            System.out.println("HERE " + prevUser);
+            messagingTemplate.convertAndSendToUser(prevUser, "/queue/canvas", chatMessage);
         }
+
+        // set current user to DRAWING
+        messagingTemplate.convertAndSend(format("/topic/%s/changeDrawUser", roomId), chatMessage);
+
+        //set current user to enable canvas
+        messagingTemplate.convertAndSendToUser(principal.getName(), "/queue/canvas", chatMessage);
     }
 
     @MessageMapping("/chat/{roomId}/addUser")

@@ -19,6 +19,7 @@
         </div>
 
         <p id="username" th:text="${username}"></p>
+        <h3>Drawing user[<p id="draw-user"></p>]</h3>
 
         <div id="table" th:if="${not #lists.isEmpty(listRooms)}">
             <table>
@@ -39,7 +40,7 @@
             </table>
         </div>
 
-        <canvas id="drawing" class="hidden" width="600" height="600"></canvas>
+        <canvas id="drawing" class="hidden" width="600" height="600" style="pointer-events: auto"></canvas>
 
         <div id="chat-page" class="hidden">
             <div class="chat-container">
