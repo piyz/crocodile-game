@@ -53,6 +53,13 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
+    public synchronized String getFinalScore(String roomid) {
+        Map<String, Integer> innerMap = mapMap.get(roomid);
+
+        return Arrays.toString(innerMap.entrySet().toArray());
+    }
+
+    @Override
     public synchronized String getNextUser(String username, String roomid) {
         Map<String, Integer> innerMap = mapMap.get(roomid);
 
@@ -71,7 +78,7 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public String getRandomWords() {
+    public synchronized String getRandomWords() {
         Random random = new Random();
         List<Word> list = wordRepository.findAll();
         int r1 = random.nextInt(list.size());

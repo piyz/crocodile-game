@@ -45,6 +45,7 @@ public class WebSocketController {
             //add score
             if (gameService.addScore(prevUser, principal.getName(), roomId)){
                 //is end
+                chatMessage.setContent(gameService.getFinalScore(roomId));
                 messagingTemplate.convertAndSend(format("/topic/%s/end", roomId), chatMessage);
             }else {
                 //set prev user to disable canvas

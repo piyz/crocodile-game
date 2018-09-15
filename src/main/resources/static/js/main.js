@@ -142,7 +142,7 @@ function onEnd(payload) {
     var message = JSON.parse(payload.body);
 
     //result text
-    modalContent.appendChild(document.createElement('td').appendChild(document.createTextNode("THE END")));
+    modalContent.appendChild(document.createElement('td').appendChild(document.createTextNode(message.content)));
 
     guessIdDisplay.textContent = '';
     endModal.style.display = "block";
