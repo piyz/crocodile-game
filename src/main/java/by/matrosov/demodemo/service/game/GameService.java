@@ -9,4 +9,5 @@ public interface GameService {
     boolean addScore(String drawer, String guesser, String roomid);
     void print();
     String getNextUser(String username, String roomid);
+    String getRandomWords();
 }

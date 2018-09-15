@@ -146,6 +146,11 @@ function onEnd(payload) {
 
     //unsub from modal window unsub from all
     queueSubscription.unsubscribe();
+    currentDrawSubscription.unsubscribe();
+    currentSubscription1.unsubscribe();
+    currentSubscription2.unsubscribe();
+    currentSubscription3.unsubscribe();
+    currentSubscription4.unsubscribe();
 }
 
 function onCanvas() {

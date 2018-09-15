@@ -1,17 +1,20 @@
 package by.matrosov.demodemo.service.game;
 
+import by.matrosov.demodemo.model.Word;
+import by.matrosov.demodemo.repository.WordRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class GameServiceImpl implements GameService{
 
     private static Map<String, Map<String, Integer>> mapMap = Collections.synchronizedMap(new HashMap<>());
     private static final int FINAL_SCORE = 100;
+
+    @Autowired
+    private WordRepository wordRepository;
 
     @Override
     public synchronized void addUser(String username, String roomid) {
@@ -65,5 +68,16 @@ public class GameServiceImpl implements GameService{
             }
             i++;
         }
+    }
+
+    @Override
+    public String getRandomWords() {
+        Random random = new Random();
+        List<Word> list = wordRepository.findAll();
+        int r1 = random.nextInt(list.size());
+        int r2 = random.nextInt(list.size());
+        int r3 = random.nextInt(list.size());
+
+        return list.get(r1).getWord() + "," + list.get(r2).getWord() + "," + list.get(r3).getWord();
     }
 }

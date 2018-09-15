@@ -57,7 +57,7 @@ public class WebSocketController {
         }
 
         //send modal window
-        chatMessage.setContent("first,second,third");
+        chatMessage.setContent(gameService.getRandomWords());
         messagingTemplate.convertAndSendToUser(name, "/queue/sendModal", chatMessage);
 
         // set current user to DRAWING

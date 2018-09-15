@@ -69,7 +69,7 @@ public class SimpleController {
         if (result.hasErrors()){
             return new ModelAndView("registration", "user", user);
         }else {
-            return new ModelAndView("successRegister", "user", user);
+            return new ModelAndView("success-register", "user", user);
         }
     }
 
