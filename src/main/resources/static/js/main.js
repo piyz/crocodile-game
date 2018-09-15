@@ -24,6 +24,7 @@ var currentDrawSubscription;
 var queueSubscription;
 var path = null;
 
+var canvasForm = document.getElementById('canvas-form');
 var canvas  = document.getElementById('drawing');
 var context = canvas.getContext('2d');
 var width   = window.innerWidth;
@@ -91,7 +92,8 @@ function unsub() {
     currentSubscription4.unsubscribe();
     currentDrawSubscription.unsubscribe();
 
-    canvas.classList.add('hidden');
+    canvasForm.classList.add('hidden');
+    //canvas.classList.add('hidden');
     unsubButton.classList.add('hidden');
     tableForm.classList.remove('hidden');
     chatPage.classList.add('hidden');
@@ -103,7 +105,8 @@ function unsub() {
 function connect(event) {
     roomInput = event.value;
 
-    canvas.classList.remove('hidden');
+    canvasForm.classList.remove('hidden');
+    //canvas.classList.remove('hidden');
     unsubButton.classList.remove('hidden');
     tableForm.classList.add('hidden');
     chatPage.classList.remove('hidden');
@@ -168,9 +171,14 @@ function onChangeDrawUser(payload) {
     var message = JSON.parse(payload.body);
     drawUser = message.sender;
 
-    dru.innerText = message.sender;
+    //dru.innerText = message.sender;
 
     //impl clear canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function clearCanvas() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 function getModalWindow(payload) {
@@ -181,25 +189,46 @@ function getModalWindow(payload) {
     guessButton3.textContent = message.content.split(",")[2];
 
     modal.style.display = "block";
+
+    guessButton1.onclick = function () {
+        clearInterval(downloadTimer);
+        stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : guessButton1.textContent}));
+        modal.style.display = "none";
+    };
+
+    guessButton2.onclick = function () {
+        clearInterval(downloadTimer);
+        stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : guessButton2.textContent}));
+        modal.style.display = "none";
+    };
+
+    guessButton3.onclick = function () {
+        clearInterval(downloadTimer);
+        stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : guessButton3.textContent}));
+        modal.style.display = "none";
+    };
+
+    var timeleft = 10;
+    var downloadTimer = setInterval(function(){
+        document.getElementById("progressBar").value = 10 - --timeleft;
+        if(timeleft <= 0){
+            var random = Math.floor(Math.random() * 4);
+            stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : message.content.split(",")[random]}));
+            modal.style.display = "none";
+            clearInterval(downloadTimer);
+        }
+    },1000);
 }
 
-guessButton1.onclick = function () {
-    stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : guessButton1.textContent}));
-    modal.style.display = "none";
-};
-
-guessButton2.onclick = function () {
-    stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : guessButton2.textContent}));
-    modal.style.display = "none";
-};
-
-guessButton3.onclick = function () {
-    stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : guessButton3.textContent}));
-    modal.style.display = "none";
-};
-
+var guess = document.getElementById("guess-window-id");
 function changeGuess(payload) {
     guessIdDisplay.textContent = JSON.parse(payload.body).content;
+
+    guess.innerHTML = '';
+    var word = JSON.parse(payload.body).content;
+    for (let i = 0; i < word.length; i++) {
+        guess.appendChild(document.createElement('span').appendChild(document.createTextNode(word.charAt(i))));
+    }
 }
 
 // Get the modal

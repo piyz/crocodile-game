@@ -10,6 +10,7 @@
     <body>
         <div id="myModal" class="modal">
             <div class="modal-content">
+                <progress value="0" max="10" id="progressBar"></progress>
                 <!--<span class="close">&times;</span>-->
                 <p>Some text in the Modal..</p>
                 <button id="guess-button-id-1"></button>
@@ -46,13 +47,17 @@
             </table>
         </div>
 
-        <canvas id="drawing" class="hidden" width="600" height="600" style="pointer-events: none"></canvas>
+        <div id="canvas-form" class="hidden">
+            <canvas id="drawing" width="600" height="600" style="pointer-events: none; border: 1px solid black" ></canvas>
+            <button type="reset" onclick="clearCanvas()"></button>
+        </div>
 
         <div id="chat-page" class="hidden">
             <div class="chat-container">
                 <div class="chat-header">
                     <h2>Chatroom [<span id="room-id-display"></span>]</h2>
-                    <h2>Guess [<span id="guess-id-display"></span>]</h2>
+                    <h2 class="hidden">Guess [<span id="guess-id-display"></span>]</h2>
+                    <h4 id="guess-window-id"></h4>
                 </div>
                 <div class="connecting">
                     Connecting...
@@ -66,16 +71,16 @@
                             <input type="text" id="message" placeholder="Type a message... or /join [room-id] to join another room."
                                    autocomplete="off" class="form-control"/>
                             <button type="submit" class="primary">Send</button>
-
-                            <button id="unsub" type="submit" onclick="unsub()" class="hidden">To Main Menu</button>
-                            <form th:action="@{/logout}" method="post">
-                                <button type="submit">Logout</button>
-                            </form>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
+
+        <button id="unsub" type="submit" onclick="unsub()" class="hidden">To Main Menu</button>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit">Logout</button>
+        </form>
 
         <script th:src="@{/js/main.js}"></script>
     </body>
