@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="/css/main.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 </head>
     <body>
         <div id="myModal" class="modal">
@@ -35,13 +36,13 @@
                     <th>Name</th>
                     <th>Password</th>
                 </tr>
-                <tr th:each="room : ${listRooms}">
+                <tr th:each="room : ${listRooms}" th:if="${room.isOpen()}">
                     <td th:text="${room.roomId}" id="roomId"></td>
                     <td th:text="${room.roomName}"></td>
-                    <td th:if="${room.password.isEmpty()}">NO</td>
-                    <td th:if="${!room.password.isEmpty()}">YES</td>
+                    <!--<td th:if="${room.password.isEmpty()}">NO</td>
+                    <td th:if="${!room.password.isEmpty()}">YES</td>-->
                     <td>
-                        <button type="submit" th:value="${room.roomId}" onclick="connect(this)">JOIN</button>
+                        <button type="submit" th:value="${room.roomId}" onclick="connecting(this)">JOIN</button>
                     </td>
                 </tr>
             </table>
@@ -59,7 +60,7 @@
                     <h2 class="hidden">Guess [<span id="guess-id-display"></span>]</h2>
                     <h4 id="guess-window-id"></h4>
                 </div>
-                <div class="connecting">
+                <div class="connecting" hidden>
                     Connecting...
                 </div>
                 <ul id="messageArea">

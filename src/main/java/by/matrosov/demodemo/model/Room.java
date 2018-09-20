@@ -13,8 +13,8 @@ public class Room {
     @Column(name = "room_name")
     private String roomName;
 
-    @Column(name = "password")
-    private String password;
+    @Column(name = "open")
+    private boolean isOpen;
 
     public int getRoomId() {
         return roomId;
@@ -24,7 +24,15 @@ public class Room {
         return roomName;
     }
 
-    public String getPassword() {
-        return password;
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
+    }
+
+    public boolean isOpen() {
+        return isOpen;
+    }
+
+    public void setOpen(boolean open) {
+        isOpen = open;
     }
 }

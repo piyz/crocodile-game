@@ -3,6 +3,7 @@ package by.matrosov.demodemo.controller;
 import by.matrosov.demodemo.model.ChatMessage;
 import by.matrosov.demodemo.model.DrawMessage;
 import by.matrosov.demodemo.service.game.GameService;
+import by.matrosov.demodemo.service.rooms.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -24,6 +25,16 @@ public class WebSocketController {
     @Autowired
     private GameService gameService;
 
+    @Autowired
+    private RoomService roomService;
+
+    @MessageMapping("/chat/table")
+    public void updateTable(@Payload ChatMessage chatMessage) {
+        //close room
+        roomService.changeRoomState(Integer.parseInt(chatMessage.getContent()));
+        messagingTemplate.convertAndSend("/topic/table", chatMessage);
+    }
+
     @MessageMapping("/chat/{roomId}/sendMessage")
     public void sendMessage(@DestinationVariable String roomId, @Payload ChatMessage chatMessage) {
         messagingTemplate.convertAndSend(format("/topic/%s/public", roomId), chatMessage);
@@ -36,7 +47,7 @@ public class WebSocketController {
         String prevUser = chatMessage.getContent();
 
         //next user
-        String name;
+        String name = "";
 
         //send message to the chat
         messagingTemplate.convertAndSend(format("/topic/%s/public", roomId), chatMessage);
@@ -47,12 +58,16 @@ public class WebSocketController {
                 //is end
                 chatMessage.setContent(gameService.getFinalScore(roomId));
                 messagingTemplate.convertAndSend(format("/topic/%s/end", roomId), chatMessage);
+
+                //open room
+                roomService.changeRoomState(Integer.parseInt(roomId));
+                messagingTemplate.convertAndSend("/topic/table", chatMessage);
             }else {
                 //set prev user to disable canvas
                 messagingTemplate.convertAndSendToUser(prevUser, "/queue/canvas", chatMessage);
+                name = gameService.getNextUser(prevUser, roomId);
             }
             gameService.print();
-            name = gameService.getNextUser(prevUser, roomId);
         }else {
             name = principal.getName();
         }

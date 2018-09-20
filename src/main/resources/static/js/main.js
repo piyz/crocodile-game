@@ -1,4 +1,3 @@
-
 var roomInput;
 var username = document.querySelector('#username').innerHTML;
 var chatPage = document.querySelector('#chat-page');
@@ -29,6 +28,19 @@ var canvas  = document.getElementById('drawing');
 var context = canvas.getContext('2d');
 var width   = window.innerWidth;
 var height  = window.innerHeight;
+
+// Get the modal
+var modal = document.querySelector('#myModal');
+var endModal = document.querySelector('#endModal');
+var modalContent = document.getElementById("modal-cont");
+
+var drawUser = null;
+var dru = document.getElementById("draw-user"); //for test
+
+var socket = new SockJS('/ws');
+stompClient = Stomp.over(socket);
+stompClient.connect({}, onConnected, onError);
+
 
 document.addEventListener("DOMContentLoaded", function() {
     var mouse = [false, false, [0,0], false];
@@ -102,7 +114,7 @@ function unsub() {
     messageArea.innerHTML = '';
 }
 
-function connect(event) {
+function connecting(event) {
     roomInput = event.value;
 
     canvasForm.classList.remove('hidden');
@@ -110,12 +122,23 @@ function connect(event) {
     unsubButton.classList.remove('hidden');
     tableForm.classList.add('hidden');
     chatPage.classList.remove('hidden');
-
-    var socket = new SockJS('/ws');
-    stompClient = Stomp.over(socket);
-
-    stompClient.connect({}, onConnected, onError);
     //event.preventDefault();
+
+    enterRoom(roomInput);
+}
+
+function onConnected() {
+    //connectingElement.classList.add('hidden');
+    stompClient.subscribe(`/topic/table`, onChangeTable);
+}
+
+function onChangeTable() {
+    $('#table').load(document.URL + ' #table')
+}
+
+function onError(error) {
+    connectingElement.textContent = 'Could not connect to WebSocket server. Please refresh this page to try again!';
+    connectingElement.style.color = 'red';
 }
 
 // Leave the current room and enter a new one.
@@ -163,9 +186,6 @@ function onCanvas() {
         canvas.style['pointer-events'] = 'none';
     }
 }
-
-var drawUser = null;
-var dru = document.getElementById("draw-user");
 
 function onChangeDrawUser(payload) {
     var message = JSON.parse(payload.body);
@@ -231,54 +251,9 @@ function changeGuess(payload) {
     }
 }
 
-// Get the modal
-var modal = document.querySelector('#myModal');
-var endModal = document.querySelector('#endModal');
-var modalContent = document.getElementById("modal-cont");
-// Get the button that opens the modal
-//var btn = document.getElementById("myBtn");
-// Get the <span> element that closes the modal
-//var span = document.getElementsByClassName("close")[0];
-// When the user clicks on the button, open the modal
-/*
-btn.onclick = function() {
-    modal.style.display = "block";
-};
- */
-// When the user clicks on <span> (x), close the modal
-/*
-span.onclick = function() {
-    modal.style.display = "none";
-};
- */
-// When the user clicks anywhere outside of the modal, close it
-/*
-window.onclick = function(event) {
-    if (event.target === modal) {
-        modal.style.display = "none";
-    }
-};
- */
-
-function onConnected() {
-    enterRoom(roomInput);
-    connectingElement.classList.add('hidden');
-}
-
-function onError(error) {
-    connectingElement.textContent = 'Could not connect to WebSocket server. Please refresh this page to try again!';
-    connectingElement.style.color = 'red';
-}
-
 function sendMessage(event) {
     var messageContent = messageInput.value.trim();
-    if (messageContent.startsWith('/join ')) {
-        var newRoomId = messageContent.substring('/join '.length);
-        enterRoom(newRoomId);
-        while (messageArea.firstChild) {
-            messageArea.removeChild(messageArea.firstChild);
-        }
-    } else if (messageContent && stompClient) {
+    if (messageContent && stompClient) {
         var chatMessage = {
             sender: username,
             content: messageInput.value,
@@ -286,11 +261,17 @@ function sendMessage(event) {
         };
 
         if (chatMessage.content === guessIdDisplay.textContent) {
+
+            //start the game
+            if (chatMessage.content === 'test'){
+                stompClient.send(`/app/chat/table`, {}, JSON.stringify({content : roomInput}));
+            }
+
             stompClient.send(`${path}/changeDrawUser`, {}, JSON.stringify({
                 sender: username,
                 content : drawUser,
                 type: 'GUESS'
-            }));//no need cont
+            }));
         }else {
             stompClient.send(`${path}/sendMessage`, {}, JSON.stringify(chatMessage));
         }
