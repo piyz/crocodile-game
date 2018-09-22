@@ -143,6 +143,7 @@ function onError(error) {
 
 // Leave the current room and enter a new one.
 function enterRoom(roomId) {
+    connectingElement.classList.add('hidden');
 
     roomIdDisplay.textContent = roomId;
     path = `/app/chat/${roomId}`;
@@ -228,6 +229,7 @@ function getModalWindow(payload) {
         modal.style.display = "none";
     };
 
+    /*
     var timeleft = 10;
     var downloadTimer = setInterval(function(){
         document.getElementById("progressBar").value = 10 - --timeleft;
@@ -238,6 +240,7 @@ function getModalWindow(payload) {
             clearInterval(downloadTimer);
         }
     },1000);
+     */
 }
 
 var guess = document.getElementById("guess-window-id");

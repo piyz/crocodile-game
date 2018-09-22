@@ -101,9 +101,18 @@ button.accent {
 
 #chat-page {
     position: absolute;
-    top: 0;
     right: 0;
-    height: 100%;
+
+    width: 389px;
+    height: 659px;
+    left: 844px;
+    top: 60px;
+}
+
+#canvas-form{
+    width: 602px;
+    height: 602px;
+    margin-top: 24px;
 }
 
 .chat-container {
