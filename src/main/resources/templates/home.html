@@ -100,7 +100,7 @@
                     <h2 class="hidden">Guess [<span id="guess-id-display"></span>]</h2>
                     <h4 id="guess-window-id"></h4>
                 </div>
-                <div class="connecting" hidden>
+                <div class="connecting">
                     Connecting...
                 </div>
                 <ul id="messageArea">
@@ -119,6 +119,10 @@
         </div>
 
         <button id="unsub" type="button" onclick="unsub()" class="hidden">exit</button>
+
+        <div id="userlist">
+
+        </div>
     </div>
 
         <script th:src="@{/js/main.js}"></script>

@@ -21,13 +21,14 @@ var currentSubscription3;
 var currentSubscription4;
 var currentDrawSubscription;
 var queueSubscription;
+var scoreSubscription;
 var path = null;
 
 var canvasForm = document.getElementById('canvas-form');
 var canvas  = document.getElementById('drawing');
 var context = canvas.getContext('2d');
-var width   = window.innerWidth;
-var height  = window.innerHeight;
+var width   = canvas.getAttribute("width");
+var height  = canvas.getAttribute("height");
 
 // Get the modal
 var modal = document.querySelector('#myModal');
@@ -128,7 +129,7 @@ function connecting(event) {
 }
 
 function onConnected() {
-    //connectingElement.classList.add('hidden');
+    connectingElement.classList.add('hidden');
     stompClient.subscribe(`/topic/table`, onChangeTable);
 }
 
@@ -143,7 +144,7 @@ function onError(error) {
 
 // Leave the current room and enter a new one.
 function enterRoom(roomId) {
-    connectingElement.classList.add('hidden');
+    //connectingElement.classList.add('hidden');
 
     roomIdDisplay.textContent = roomId;
     path = `/app/chat/${roomId}`;
@@ -155,11 +156,17 @@ function enterRoom(roomId) {
     currentSubscription1 = stompClient.subscribe(`/topic/${roomId}/public`, onMessageReceived);
     currentSubscription3 = stompClient.subscribe(`/topic/${roomId}/changeDrawUser`, onChangeDrawUser);
     currentSubscription4 = stompClient.subscribe(`/topic/${roomId}/end`, onEnd);
+    scoreSubscription = stompClient.subscribe(`/topic/${roomId}/score`, onScore);
 
-    stompClient.send(`${path}/addUser`,
-        {},
-        JSON.stringify({sender: username, type: 'JOIN'})
-    );
+    stompClient.send(`${path}/addUser`, {}, JSON.stringify({sender: username, type: 'JOIN'}));
+    stompClient.send(`${path}/score`);
+}
+
+var userList = document.getElementById("userlist");
+function onScore(payload) {
+    var message = JSON.parse(payload.body);
+    userList.innerText = "";
+    userList.appendChild(document.createElement('td').appendChild(document.createTextNode(message.content)));
 }
 
 function onEnd(payload) {
@@ -298,6 +305,10 @@ function sendMessage(event) {
                 content : drawUser,
                 type: 'GUESS'
             }));
+
+            //update score
+            stompClient.send(`${path}/score`);
+
         }else {
             stompClient.send(`${path}/sendMessage`, {}, JSON.stringify(chatMessage));
         }

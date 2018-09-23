@@ -53,7 +53,7 @@ public class GameServiceImpl implements GameService{
     }
 
     @Override
-    public synchronized String getFinalScore(String roomid) {
+    public synchronized String getScore(String roomid) {
         Map<String, Integer> innerMap = mapMap.get(roomid);
 
         return Arrays.toString(innerMap.entrySet().toArray());

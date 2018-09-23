@@ -56,7 +56,7 @@ public class WebSocketController {
             //add score
             if (gameService.addScore(prevUser, principal.getName(), roomId)){
                 //is end
-                chatMessage.setContent(gameService.getFinalScore(roomId));
+                chatMessage.setContent(gameService.getScore(roomId));
                 messagingTemplate.convertAndSend(format("/topic/%s/end", roomId), chatMessage);
 
                 //open room
@@ -112,5 +112,12 @@ public class WebSocketController {
         drawMessage.setY2(Float.parseFloat(chatMessage.getContent().split("#")[1].split(",")[1]));
 
         messagingTemplate.convertAndSend(format("/topic/%s/draw", roomId), drawMessage);
+    }
+
+    @MessageMapping("/chat/{roomId}/score")
+    public void getScore(@DestinationVariable String roomId){
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(gameService.getScore(roomId));
+        messagingTemplate.convertAndSend(format("/topic/%s/score", roomId), chatMessage);
     }
 }
