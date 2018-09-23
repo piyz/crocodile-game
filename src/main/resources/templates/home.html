@@ -26,15 +26,39 @@
     </nav>
 
     <div class="container">
+
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <table>
+                            <tr>
+                                <td><button type="button" class="btn btn-primary btn-lg" id="guess-button-id-1"></button></td>
+                            </tr>
+                            <tr>
+                                <td><button type="button" class="btn btn-primary btn-lg" id="guess-button-id-2"></button></td>
+                            </tr>
+                            <tr>
+                                <td><button type="button" class="btn btn-primary btn-lg" id="guess-button-id-3"></button></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--
         <div id="myModal" class="modal">
             <div class="modal-content">
                 <progress value="0" max="10" id="progressBar"></progress>
-                <!--<span class="close">&times;</span>-->
+                <!--<span class="close">&times;</span>
                 <button type="button" class="btn btn-primary btn-lg" id="guess-button-id-1"></button>
                 <button type="button" class="btn btn-primary btn-lg" id="guess-button-id-2"></button>
                 <button type="button" class="btn btn-primary btn-lg" id="guess-button-id-3"></button>
             </div>
         </div>
+        -->
 
         <div id="endModal" class="modal">
             <div id="modal-cont" class="modal-content">

@@ -209,24 +209,25 @@ function getModalWindow(payload) {
     guessButton2.textContent = message.content.split(",")[1];
     guessButton3.textContent = message.content.split(",")[2];
 
-    modal.style.display = "block";
+    //modal.style.display = "block";
+    $('#myModal').modal({backdrop: 'static', keyboard: false});
 
     guessButton1.onclick = function () {
-        clearInterval(downloadTimer);
+        //clearInterval(downloadTimer);
         stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : guessButton1.textContent}));
-        modal.style.display = "none";
+        $('#myModal').modal('hide');
     };
 
     guessButton2.onclick = function () {
-        clearInterval(downloadTimer);
+        //clearInterval(downloadTimer);
         stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : guessButton2.textContent}));
-        modal.style.display = "none";
+        $('#myModal').modal('hide');
     };
 
     guessButton3.onclick = function () {
-        clearInterval(downloadTimer);
+        //clearInterval(downloadTimer);
         stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : guessButton3.textContent}));
-        modal.style.display = "none";
+        $('#myModal').modal('hide');
     };
 
     /*
