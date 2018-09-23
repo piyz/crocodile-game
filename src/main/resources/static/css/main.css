@@ -285,3 +285,12 @@ button.accent {
 #guess-button-id-3{
     width: 266px;
 }
+
+.form-signin{
+    width: 25%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-top: -100px;
+    margin-left: -166px;
+}
