@@ -213,35 +213,57 @@ function getModalWindow(payload) {
     $('#myModal').modal({backdrop: 'static', keyboard: false});
 
     guessButton1.onclick = function () {
-        //clearInterval(downloadTimer);
+        clearInterval(interval);
+        document.getElementById("time").innerText = "00:05";
+
         stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : guessButton1.textContent}));
         $('#myModal').modal('hide');
     };
 
     guessButton2.onclick = function () {
-        //clearInterval(downloadTimer);
+        clearInterval(interval);
+        document.getElementById("time").innerText = "00:05";
+
         stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : guessButton2.textContent}));
         $('#myModal').modal('hide');
     };
 
     guessButton3.onclick = function () {
-        //clearInterval(downloadTimer);
+        clearInterval(interval);
+        document.getElementById("time").innerText = "00:05";
+
         stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : guessButton3.textContent}));
         $('#myModal').modal('hide');
     };
 
-    /*
-    var timeleft = 10;
-    var downloadTimer = setInterval(function(){
-        document.getElementById("progressBar").value = 10 - --timeleft;
-        if(timeleft <= 0){
-            var random = Math.floor(Math.random() * 4);
-            stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : message.content.split(",")[random]}));
-            modal.style.display = "none";
-            clearInterval(downloadTimer);
-        }
-    },1000);
-     */
+    jQuery(function ($) {
+        var fiveSeconds = 5, display = $('#time');
+        startTimer(fiveSeconds, display);
+    });
+
+    var interval;
+    function startTimer(duration, display) {
+        var timer = duration, minutes, seconds;
+        interval = setInterval(function () {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            display.text(minutes + ":" + seconds);
+
+            if (--timer < 0) {
+                clearInterval(interval);
+                document.getElementById("time").innerText = "00:05";
+
+                var random = Math.floor(Math.random() * 4);
+                stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : message.content.split(",")[random]}));
+
+                $('#myModal').modal('hide');
+            }
+        }, 1000);
+    }
 }
 
 var guess = document.getElementById("guess-window-id");
