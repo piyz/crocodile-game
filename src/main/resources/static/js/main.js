@@ -1,43 +1,43 @@
-var roomInput;
-var username = document.querySelector('#username').innerHTML;
-var chatPage = document.querySelector('#chat-page');
-var messageForm = document.querySelector('#messageForm');
-var messageInput = document.querySelector('#message');
-var messageArea = document.querySelector('#messageArea');
-var connectingElement = document.querySelector('.connecting');
-var roomIdDisplay = document.querySelector('#room-id-display');
-var guessIdDisplay = document.querySelector('#guess-id-display'); guessIdDisplay.textContent = "test"; //test content
-var tableForm = document.querySelector('#table');
-var unsubButton = document.querySelector('#unsub');
+let roomInput;
+let username = document.querySelector('#username').innerHTML;
+let chatPage = document.querySelector('#chat-page');
+let messageForm = document.querySelector('#messageForm');
+let messageInput = document.querySelector('#message');
+let messageArea = document.querySelector('#messageArea');
+let connectingElement = document.querySelector('.connecting');
+let roomIdDisplay = document.querySelector('#room-id-display');
+let guessIdDisplay = document.querySelector('#guess-id-display'); guessIdDisplay.textContent = "test"; //test content
+let tableForm = document.querySelector('#table');
+let unsubButton = document.querySelector('#unsub');
 
-var guessButton1 = document.querySelector('#guess-button-id-1');
-var guessButton2 = document.querySelector('#guess-button-id-2');
-var guessButton3 = document.querySelector('#guess-button-id-3');
+let guessButton1 = document.querySelector('#guess-button-id-1');
+let guessButton2 = document.querySelector('#guess-button-id-2');
+let guessButton3 = document.querySelector('#guess-button-id-3');
 
-var stompClient = null;
-var currentSubscription1;
-var currentSubscription2;
-var currentSubscription3;
-var currentSubscription4;
-var currentDrawSubscription;
-var queueSubscription;
-var scoreSubscription;
+let stompClient = null;
+let currentSubscription1;
+let currentSubscription2;
+let currentSubscription3;
+let currentSubscription4;
+let currentDrawSubscription;
+let queueSubscription;
+let scoreSubscription;
 let timerSubscription;
-var path = null;
+let path = null;
 
-var canvasForm = document.getElementById('canvas-form');
-var canvas  = document.getElementById('drawing');
-var context = canvas.getContext('2d');
-var width   = canvas.getAttribute("width");
-var height  = canvas.getAttribute("height");
+let canvasForm = document.getElementById('canvas-form');
+let canvas  = document.getElementById('drawing');
+let context = canvas.getContext('2d');
+let width   = canvas.getAttribute("width");
+let height  = canvas.getAttribute("height");
 
 // Get the modal
-var modal = document.querySelector('#myModal');
-var endModal = document.querySelector('#endModal');
-var modalContent = document.getElementById("modal-cont");
+let modal = document.querySelector('#myModal');
+let endModal = document.querySelector('#endModal');
+let modalContent = document.getElementById("modal-cont");
 
 let drawUser = null;
-var dru = document.getElementById("draw-user"); //for test
+let dru = document.getElementById("draw-user"); //for test
 
 let timer1 = document.getElementById("timer"); //for game
 let timer2 = document.getElementById("time"); //for modal
@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function onDraw(payload){
-    var message = JSON.parse(payload.body);
+    let message = JSON.parse(payload.body);
     context.beginPath();
     context.moveTo(message.x1 * width, message.y1 * height);
     context.lineTo(message.x2 * width, message.y2 * height);
@@ -99,7 +99,7 @@ function onDraw(payload){
     //0.4449152542372881,0.18916155419222905#0.4449152542372881,0.18507157464212678
 }
 
-var colors = [
+let colors = [
     '#2196F3', '#32c787', '#00BCD4', '#ff5652',
     '#ffc107', '#ff85af', '#FF9800', '#39bbb0'
 ];
@@ -169,15 +169,15 @@ function enterRoom(roomId) {
     stompClient.send(`${path}/score`);
 }
 
-var userList = document.getElementById("userlist");
+let userList = document.getElementById("userlist");
 function onScore(payload) {
-    var message = JSON.parse(payload.body);
+    let message = JSON.parse(payload.body);
     userList.innerText = "";
     userList.appendChild(document.createElement('td').appendChild(document.createTextNode(message.content)));
 }
 
 function onEnd(payload) {
-    var message = JSON.parse(payload.body);
+    let message = JSON.parse(payload.body);
 
     //result text
     modalContent.appendChild(document.createElement('td').appendChild(document.createTextNode(message.content)));
@@ -204,10 +204,12 @@ function onCanvas() {
     } else {
         canvas.style['pointer-events'] = 'none';
     }
+
+    messageInput.disabled = messageInput.disabled === false;
 }
 
 function onChangeDrawUser(payload) {
-    var message = JSON.parse(payload.body);
+    let message = JSON.parse(payload.body);
     drawUser = message.sender;
 
     //dru.innerText = message.sender;
@@ -221,7 +223,7 @@ function clearCanvas() {
 }
 
 function getModalWindow(payload) {
-    var message = JSON.parse(payload.body);
+    let message = JSON.parse(payload.body);
 
     guessButton1.textContent = message.content.split(",")[0];
     guessButton2.textContent = message.content.split(",")[1];
@@ -288,6 +290,9 @@ let guess = document.getElementById("guess-window-id");
 let guessOpened = document.getElementById("guess-window-open-id");
 let gameInterval;
 function changeGuess(payload) {
+    guess.innerHTML = '';
+    guessOpened.innerHTML = '';
+
     let content = JSON.parse(payload.body).content;
 
     guessIdDisplay.textContent = content.split("#")[0];
@@ -297,9 +302,7 @@ function changeGuess(payload) {
         randoms.push(parseInt(content.split("#")[1].charAt(i)));
     }
 
-    guess.innerHTML = '';
-    guessOpened.innerHTML = '';
-    let word = JSON.parse(payload.body).content;
+    let word = content.split("#")[0];
     for (let i = 0; i < word.length; i++) {
         guess.appendChild(document.createElement('span').appendChild(document.createTextNode(word.charAt(i))));
         guessOpened.appendChild(document.createElement('span').appendChild(document.createTextNode(" _ ")));
@@ -352,15 +355,17 @@ function onTimer() {
 }
 
 function sendMessage(event) {
-    var messageContent = messageInput.value.trim();
+    let messageContent = messageInput.value.trim();
     if (messageContent && stompClient) {
-        var chatMessage = {
+        let chatMessage = {
             sender: username,
             content: messageInput.value,
             type: 'CHAT'
         };
 
         if (chatMessage.content === guessIdDisplay.textContent) {
+
+            //clear guessiddisplay
 
             //start the game
             if (chatMessage.content === 'test' && inGame === false){
@@ -389,9 +394,9 @@ function sendMessage(event) {
 }
 
 function onMessageReceived(payload) {
-    var message = JSON.parse(payload.body);
+    let message = JSON.parse(payload.body);
 
-    var messageElement = document.createElement('li');
+    let messageElement = document.createElement('li');
 
     if (message.type === 'JOIN') {
         messageElement.classList.add('event-message');
@@ -405,21 +410,21 @@ function onMessageReceived(payload) {
     } else {
         messageElement.classList.add('chat-message');
 
-        var avatarElement = document.createElement('i');
-        var avatarText = document.createTextNode(message.sender[0]);
+        let avatarElement = document.createElement('i');
+        let avatarText = document.createTextNode(message.sender[0]);
         avatarElement.appendChild(avatarText);
         avatarElement.style['background-color'] = getAvatarColor(message.sender);
 
         messageElement.appendChild(avatarElement);
 
-        var usernameElement = document.createElement('span');
-        var usernameText = document.createTextNode(message.sender);
+        let usernameElement = document.createElement('span');
+        let usernameText = document.createTextNode(message.sender);
         usernameElement.appendChild(usernameText);
         messageElement.appendChild(usernameElement);
     }
 
-    var textElement = document.createElement('p');
-    var messageText = document.createTextNode(message.content);
+    let textElement = document.createElement('p');
+    let messageText = document.createTextNode(message.content);
     textElement.appendChild(messageText);
 
     messageElement.appendChild(textElement);
@@ -429,11 +434,11 @@ function onMessageReceived(payload) {
 }
 
 function getAvatarColor(messageSender) {
-    var hash = 0;
-    for (var i = 0; i < messageSender.length; i++) {
+    let hash = 0;
+    for (let i = 0; i < messageSender.length; i++) {
         hash = 31 * hash + messageSender.charCodeAt(i);
     }
-    var index = Math.abs(hash % colors.length);
+    let index = Math.abs(hash % colors.length);
     return colors[index];
 }
 
