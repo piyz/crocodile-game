@@ -22,6 +22,7 @@ var currentSubscription4;
 var currentDrawSubscription;
 var queueSubscription;
 var scoreSubscription;
+let timerSubscription;
 var path = null;
 
 var canvasForm = document.getElementById('canvas-form');
@@ -35,7 +36,7 @@ var modal = document.querySelector('#myModal');
 var endModal = document.querySelector('#endModal');
 var modalContent = document.getElementById("modal-cont");
 
-var drawUser = null;
+let drawUser = null;
 var dru = document.getElementById("draw-user"); //for test
 
 let timer1 = document.getElementById("timer"); //for game
@@ -44,6 +45,8 @@ let timer2 = document.getElementById("time"); //for modal
 let socket = new SockJS('/ws');
 stompClient = Stomp.over(socket);
 stompClient.connect({}, onConnected, onError);
+
+let inGame = false;
 
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -107,6 +110,8 @@ function unsub() {
     currentSubscription3.unsubscribe();
     currentSubscription4.unsubscribe();
     currentDrawSubscription.unsubscribe();
+    scoreSubscription.unsubscribe();
+    timerSubscription.unsubscribe();
 
     canvasForm.classList.add('hidden');
     //canvas.classList.add('hidden');
@@ -147,8 +152,6 @@ function onError(error) {
 
 // Leave the current room and enter a new one.
 function enterRoom(roomId) {
-    //connectingElement.classList.add('hidden');
-
     roomIdDisplay.textContent = roomId;
     path = `/app/chat/${roomId}`;
 
@@ -160,6 +163,7 @@ function enterRoom(roomId) {
     currentSubscription3 = stompClient.subscribe(`/topic/${roomId}/changeDrawUser`, onChangeDrawUser);
     currentSubscription4 = stompClient.subscribe(`/topic/${roomId}/end`, onEnd);
     scoreSubscription = stompClient.subscribe(`/topic/${roomId}/score`, onScore);
+    timerSubscription = stompClient.subscribe(`/topic/${roomId}/timer`, onTimer);
 
     stompClient.send(`${path}/addUser`, {}, JSON.stringify({sender: username, type: 'JOIN'}));
     stompClient.send(`${path}/score`);
@@ -189,6 +193,9 @@ function onEnd(payload) {
     currentSubscription3.unsubscribe();
     currentSubscription4.unsubscribe();
     scoreSubscription.unsubscribe();
+    timerSubscription.unsubscribe();
+
+    inGame = false;
 }
 
 function onCanvas() {
@@ -248,13 +255,13 @@ function getModalWindow(payload) {
     };
 
     jQuery(function ($) {
-        var fiveSeconds = 5, display = $('#time');
+        let fiveSeconds = 5, display = $('#time');
         startTimer(fiveSeconds, display);
     });
 
-    var interval;
+    let interval;
     function startTimer(duration, display) {
-        var timer = duration, minutes, seconds;
+        let timer = duration, minutes, seconds;
         interval = setInterval(function () {
             minutes = parseInt(timer / 60, 10);
             seconds = parseInt(timer % 60, 10);
@@ -266,9 +273,9 @@ function getModalWindow(payload) {
 
             if (--timer < 0) {
                 clearInterval(interval);
-                document.getElementById("time").innerText = "00:05";
+                timer2.innerText = "00:05";
 
-                var random = Math.floor(Math.random() * 4);
+                let random = Math.floor(Math.random() * 4);
                 stompClient.send(`${path}/changeGuess`, {}, JSON.stringify({content : message.content.split(",")[random]}));
 
                 $('#myModal').modal('hide');
@@ -313,11 +320,12 @@ function changeGuess(payload) {
             if (timer < 0) {
                 clearInterval(gameInterval);
                 timer1.innerText = "02:00";
-                //change draw user
-                //update score no need
-                //TODO this
+
+                //stompClient.send(`${path}/timeOver`, {}, JSON.stringify({sender: username, content : drawUser, type: 'OVER'}));
+
             } else if (timer < 90 && count === 0){
                 //open first letter
+                //subs on opened guess and send
                 random1 = Math.floor(Math.random() * word.length);
                 guessOpened.childNodes[random1].textContent = " " + word.charAt(random1) + " ";
                 count++;
@@ -343,6 +351,11 @@ function changeGuess(payload) {
     //guessOpened.childNodes[3].textContent = " A ";
 }
 
+function onTimer() {
+    clearInterval(gameInterval);
+    timer1.innerText = "02:00";
+}
+
 function sendMessage(event) {
     var messageContent = messageInput.value.trim();
     if (messageContent && stompClient) {
@@ -355,14 +368,13 @@ function sendMessage(event) {
         if (chatMessage.content === guessIdDisplay.textContent) {
 
             //start the game
-            if (chatMessage.content === 'test'){
-                timer1.classList.remove("hidden");
+            if (chatMessage.content === 'test' && inGame === false){
+                inGame = true;
                 stompClient.send(`/app/chat/table`, {}, JSON.stringify({content : roomInput}));
             }
 
             //reset timer
-            clearInterval(gameInterval);
-            timer1.innerText = "02:00";
+            stompClient.send(`${path}/timer`, {});
 
             stompClient.send(`${path}/changeDrawUser`, {}, JSON.stringify({
                 sender: username,

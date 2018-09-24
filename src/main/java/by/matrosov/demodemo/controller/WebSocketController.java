@@ -28,6 +28,11 @@ public class WebSocketController {
     @Autowired
     private RoomService roomService;
 
+    @MessageMapping("/chat/{roomId}/timer")
+    public void updateTimer(@DestinationVariable String roomId) {
+        messagingTemplate.convertAndSend(format("/topic/%s/timer", roomId), new ChatMessage());
+    }
+
     @MessageMapping("/chat/table")
     public void updateTable(@Payload ChatMessage chatMessage) {
         //close room
