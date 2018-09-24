@@ -143,4 +143,10 @@ public class WebSocketController {
         chatMessage.setContent(gameService.getScore(roomId));
         messagingTemplate.convertAndSend(format("/topic/%s/score", roomId), chatMessage);
     }
+
+    @MessageMapping("/chat/{roomId}/guessDisplay")
+    public void clearGuessDisplay(@DestinationVariable String roomId){
+        ChatMessage chatMessage = new ChatMessage();
+        messagingTemplate.convertAndSend(format("/topic/%s/guessDisplay", roomId), chatMessage);
+    }
 }

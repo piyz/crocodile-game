@@ -23,6 +23,7 @@ let currentDrawSubscription;
 let queueSubscription;
 let scoreSubscription;
 let timerSubscription;
+let guessIdDisplaySubscription;
 let path = null;
 
 let canvasForm = document.getElementById('canvas-form');
@@ -112,6 +113,7 @@ function unsub() {
     currentDrawSubscription.unsubscribe();
     scoreSubscription.unsubscribe();
     timerSubscription.unsubscribe();
+    guessIdDisplaySubscription.unsubscribe();
 
     canvasForm.classList.add('hidden');
     //canvas.classList.add('hidden');
@@ -164,6 +166,7 @@ function enterRoom(roomId) {
     currentSubscription4 = stompClient.subscribe(`/topic/${roomId}/end`, onEnd);
     scoreSubscription = stompClient.subscribe(`/topic/${roomId}/score`, onScore);
     timerSubscription = stompClient.subscribe(`/topic/${roomId}/timer`, onTimer);
+    guessIdDisplaySubscription = stompClient.subscribe(`/topic/${roomId}/guessDisplay`, clearGuessDisplay);
 
     stompClient.send(`${path}/addUser`, {}, JSON.stringify({sender: username, type: 'JOIN'}));
     stompClient.send(`${path}/score`);
@@ -194,6 +197,7 @@ function onEnd(payload) {
     currentSubscription4.unsubscribe();
     scoreSubscription.unsubscribe();
     timerSubscription.unsubscribe();
+    guessIdDisplaySubscription.unsubscribe();
 
     inGame = false;
 }
@@ -354,6 +358,10 @@ function onTimer() {
     timer1.innerText = "02:00";
 }
 
+function clearGuessDisplay() {
+    guessIdDisplay.textContent = "";
+}
+
 function sendMessage(event) {
     let messageContent = messageInput.value.trim();
     if (messageContent && stompClient) {
@@ -365,7 +373,8 @@ function sendMessage(event) {
 
         if (chatMessage.content === guessIdDisplay.textContent) {
 
-            //clear guessiddisplay
+            //clear guessdidsplay
+            stompClient.send(`${path}/guessDisplay`, {});
 
             //start the game
             if (chatMessage.content === 'test' && inGame === false){
