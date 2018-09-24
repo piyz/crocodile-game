@@ -13,6 +13,7 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
+import java.util.Random;
 
 import static java.lang.String.format;
 
@@ -104,6 +105,23 @@ public class WebSocketController {
 
     @MessageMapping("/chat/{roomId}/changeGuess")
     public void changeGuess(@DestinationVariable String roomId, @Payload ChatMessage chatMessage){
+
+        String word = chatMessage.getContent();
+
+        Random random = new Random();
+        String s = "";
+        StringBuilder sb = new StringBuilder(s);
+        for (int i = 0; i < 3; i++) {
+            int r = random.nextInt(word.length());
+            while (s.contains(String.valueOf(r))){
+                r = random.nextInt(word.length());
+            }
+            sb.append(r);
+        }
+
+        String resultContent = word + "#" + sb;
+        chatMessage.setContent(resultContent);
+
         messagingTemplate.convertAndSend(format("/topic/%s/changeGuess", roomId), chatMessage);
     }
 

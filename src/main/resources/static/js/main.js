@@ -288,7 +288,14 @@ let guess = document.getElementById("guess-window-id");
 let guessOpened = document.getElementById("guess-window-open-id");
 let gameInterval;
 function changeGuess(payload) {
-    guessIdDisplay.textContent = JSON.parse(payload.body).content;
+    let content = JSON.parse(payload.body).content;
+
+    guessIdDisplay.textContent = content.split("#")[0];
+
+    let randoms = [];
+    for (let i = 0; i < content.split("#")[1].length; i++) {
+        randoms.push(parseInt(content.split("#")[1].charAt(i)));
+    }
 
     guess.innerHTML = '';
     guessOpened.innerHTML = '';
@@ -304,7 +311,6 @@ function changeGuess(payload) {
     });
 
     let count = 0;
-    let random1, random2, random3;
     function startGameTimer(duration, display) {
         let timer = duration, minutes, seconds;
         gameInterval = setInterval(function () {
@@ -322,28 +328,17 @@ function changeGuess(payload) {
                 timer1.innerText = "02:00";
 
                 //stompClient.send(`${path}/timeOver`, {}, JSON.stringify({sender: username, content : drawUser, type: 'OVER'}));
-
             } else if (timer < 90 && count === 0){
                 //open first letter
-                //subs on opened guess and send
-                random1 = Math.floor(Math.random() * word.length);
-                guessOpened.childNodes[random1].textContent = " " + word.charAt(random1) + " ";
+                guessOpened.childNodes[randoms[count]].textContent = " " + word.charAt(randoms[count]) + " ";
                 count++;
             } else if (timer < 60 && count === 1){
                 //open second letter
-                random2 = Math.floor(Math.random() * word.length);
-                while (random2 === random1){
-                    random2 = Math.floor(Math.random() * word.length);
-                }
-                guessOpened.childNodes[random2].textContent = " " + word.charAt(random2) + " ";
+                guessOpened.childNodes[randoms[count]].textContent = " " + word.charAt(randoms[count]) + " ";
                 count++;
             } else if (timer < 30 && count === 2){
                 //open third letter
-                random3 = Math.floor(Math.random() * word.length);
-                while (random3 === random2 || random3 === random1){
-                    random3 = Math.floor(Math.random() * word.length);
-                }
-                guessOpened.childNodes[random3].textContent = " " + word.charAt(random3) + " ";
+                guessOpened.childNodes[randoms[count]].textContent = " " + word.charAt(randoms[count]) + " ";
                 count++;
             }
         }, 1000);
