@@ -9,6 +9,7 @@ let roomIdDisplay = document.querySelector('#room-id-display');
 let guessIdDisplay = document.querySelector('#guess-id-display'); guessIdDisplay.textContent = "test"; //test content
 let tableForm = document.querySelector('#table');
 let unsubButton = document.querySelector('#unsub');
+let userList = document.getElementById("userlist");
 
 let guessButton1 = document.querySelector('#guess-button-id-1');
 let guessButton2 = document.querySelector('#guess-button-id-2');
@@ -51,7 +52,7 @@ let inGame = false;
 
 
 document.addEventListener("DOMContentLoaded", function() {
-    var mouse = [false, false, [0,0], false];
+    let mouse = [false, false, [0,0], false];
 
     // set canvas to full browser width/height
     //canvas.width = width;
@@ -64,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     canvas.onmousemove = function(e) {
         // normalize mouse position to range 0.0 - 1.0
-        var rect = canvas.getBoundingClientRect();
+        let rect = canvas.getBoundingClientRect();
         mouse[2][0] = (e.clientX - rect.left) / width;
         mouse[2][1] = (e.clientY - rect.top) / height;
         mouse[1] = true;
@@ -75,9 +76,9 @@ document.addEventListener("DOMContentLoaded", function() {
         // check if the user is drawing
         if (mouse[0] && mouse[1] && mouse[3]) {
             // send line to to the server
-            var drawMessage = JSON.stringify({
+            let drawMessage = JSON.stringify({
                 sender : username,
-                content : mouse[2].toString() + "#" + mouse[3].toString(),
+                content : mouse[2].toString() + "#" + mouse[3].toString() + context.strokeStyle,
                 type : 'DRAW'
             });
 
@@ -91,8 +92,19 @@ document.addEventListener("DOMContentLoaded", function() {
     mainLoop();
 });
 
+
+document.getElementById("red").addEventListener("click", function () {context.strokeStyle = "#F00000"});
+document.getElementById("yellow").addEventListener("click", function () {context.strokeStyle = "#F0DE10"});
+document.getElementById("blue").addEventListener("click", function () {context.strokeStyle = "#001FF0"});
+
 function onDraw(payload){
     let message = JSON.parse(payload.body);
+
+    context.lineCap = 'round';
+    context.lineWidth = 3;
+    context.strokeStyle = message.color;
+    //context.strokeStyle = color;
+
     context.beginPath();
     context.moveTo(message.x1 * width, message.y1 * height);
     context.lineTo(message.x2 * width, message.y2 * height);
@@ -120,9 +132,31 @@ function unsub() {
     unsubButton.classList.add('hidden');
     tableForm.classList.remove('hidden');
     chatPage.classList.add('hidden');
+    userList.classList.add('hidden');
 
     //clear chatting before
     messageArea.innerHTML = '';
+
+    //clear score
+    userList.innerText = "";
+
+    //clear canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    //enable input message
+    messageInput.disabled = false;
+
+    //clear timer
+    timer1.innerText = "02:00";
+
+    //clear open-guess
+    guessOpened.innerHTML = '';
+    guessIdDisplay.textContent = "test";
+    guess.innerHTML = "";
+
+    inGame = false;
+
+    clearInterval(gameInterval);
 }
 
 function connecting(event) {
@@ -133,6 +167,7 @@ function connecting(event) {
     unsubButton.classList.remove('hidden');
     tableForm.classList.add('hidden');
     chatPage.classList.remove('hidden');
+    userList.classList.remove('hidden');
     //event.preventDefault();
 
     enterRoom(roomInput);
@@ -172,7 +207,6 @@ function enterRoom(roomId) {
     stompClient.send(`${path}/score`);
 }
 
-let userList = document.getElementById("userlist");
 function onScore(payload) {
     let message = JSON.parse(payload.body);
     userList.innerText = "";

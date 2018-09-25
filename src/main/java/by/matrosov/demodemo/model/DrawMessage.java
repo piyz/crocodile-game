@@ -6,6 +6,7 @@ public class DrawMessage {
     private float y1;
     private float x2;
     private float y2;
+    private String color;
 
     public String getSender() {
         return sender;
@@ -45,5 +46,13 @@ public class DrawMessage {
 
     public void setY2(float y2) {
         this.y2 = y2;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 }

@@ -134,6 +134,8 @@ public class WebSocketController {
         drawMessage.setX2(Float.parseFloat(chatMessage.getContent().split("#")[1].split(",")[0]));
         drawMessage.setY2(Float.parseFloat(chatMessage.getContent().split("#")[1].split(",")[1]));
 
+        drawMessage.setColor("#" + chatMessage.getContent().split("#")[2]);
+
         messagingTemplate.convertAndSend(format("/topic/%s/draw", roomId), drawMessage);
     }
 
