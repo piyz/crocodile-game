@@ -50,7 +50,6 @@ stompClient.connect({}, onConnected, onError);
 
 let inGame = false;
 
-
 document.addEventListener("DOMContentLoaded", function() {
     let mouse = [false, false, [0,0], false];
 
@@ -96,7 +95,6 @@ document.addEventListener("DOMContentLoaded", function() {
 document.getElementById("red").addEventListener("click", function () {context.strokeStyle = "#F00000"});
 document.getElementById("yellow").addEventListener("click", function () {context.strokeStyle = "#F0DE10"});
 document.getElementById("blue").addEventListener("click", function () {context.strokeStyle = "#001FF0"});
-
 function onDraw(payload){
     let message = JSON.parse(payload.body);
 
@@ -409,6 +407,9 @@ function sendMessage(event) {
 
             //clear guessdidsplay
             stompClient.send(`${path}/guessDisplay`, {});
+
+            //reset color to def
+            context.strokeStyle = "#000000";
 
             //start the game
             if (chatMessage.content === 'test' && inGame === false){
