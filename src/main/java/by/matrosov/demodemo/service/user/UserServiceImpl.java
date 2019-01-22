@@ -1,10 +1,8 @@
 package by.matrosov.demodemo.service.user;
 
-import by.matrosov.demodemo.exception.UserExistException;
 import by.matrosov.demodemo.model.User;
 import by.matrosov.demodemo.repository.RoleRepository;
 import by.matrosov.demodemo.repository.UserRepository;
-import by.matrosov.demodemo.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,20 +23,14 @@ public class UserServiceImpl implements UserService {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public User registerNewUserAccount(User user) throws UserExistException {
-        if (userExist(user.getUsername())){
-            throw new UserExistException(
-                    "There is an account with that username:" + user.getUsername());
-        }
-        User newUser = new User();
-        newUser.setUsername(user.getUsername());
-        newUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        newUser.setRoles(new HashSet<>(Arrays.asList(roleRepository.findByRoleName("USER"))));
-        return userRepository.save(newUser);
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
-    private boolean userExist(String username){
-        User user = userRepository.findByUsername(username);
-        return user != null;
+    @Override
+    public void save(User user) {
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        user.setRoles(new HashSet<>(Arrays.asList(roleRepository.findByRoleName("USER"))));
+        userRepository.save(user);
     }
 }

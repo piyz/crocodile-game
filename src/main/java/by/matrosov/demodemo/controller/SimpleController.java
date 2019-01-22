@@ -5,6 +5,7 @@ import by.matrosov.demodemo.model.Room;
 import by.matrosov.demodemo.model.User;
 import by.matrosov.demodemo.service.rooms.RoomService;
 import by.matrosov.demodemo.service.user.UserService;
+import by.matrosov.demodemo.validation.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -28,6 +29,9 @@ public class SimpleController {
     @Autowired
     private RoomService roomService;
 
+    @Autowired
+    private UserValidator userValidator;
+
     @RequestMapping(value = {"/", "/login"}, method = RequestMethod.GET)
     public String index(){
         return "index";
@@ -50,36 +54,19 @@ public class SimpleController {
 
     @RequestMapping(value = "/registration", method = RequestMethod.GET)
     public String registration(Model model){
-        User user = new User();
-        model.addAttribute("user", user);
+        model.addAttribute("user", new User());
         return "registration";
     }
 
     @RequestMapping(value = "/registration", method = RequestMethod.POST)
-    public ModelAndView registerUserAccount(@ModelAttribute("user") @Valid User user, BindingResult result,
-                                            Errors errors){
-        User registered = new User();
+    public String registerUserAccount(@ModelAttribute("user") User user, BindingResult result){
 
-        if (!result.hasErrors()){
-            registered = createUserAccount(user, result);
-        }
-        if (registered == null){
-            result.rejectValue("username", "message.regError");
-        }
+        userValidator.validate(user, result);
         if (result.hasErrors()){
-            return new ModelAndView("registration", "user", user);
-        }else {
-            return new ModelAndView("success-register", "user", user);
+            return "registration";
         }
-    }
 
-    private User createUserAccount(User user, BindingResult result){
-        User registered = null;
-        try{
-            registered = userService.registerNewUserAccount(user);
-        }catch (UserExistException e){
-            return null;
-        }
-        return registered;
+        userService.save(user);
+        return "success-register";
     }
 }

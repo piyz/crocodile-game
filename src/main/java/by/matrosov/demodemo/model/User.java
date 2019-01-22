@@ -1,10 +1,6 @@
 package by.matrosov.demodemo.model;
 
-import by.matrosov.demodemo.validation.username.ValidUsername;
-
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Entity
@@ -17,15 +13,13 @@ public class User {
     private int userId;
 
     @Column(name = "username")
-    @NotEmpty
-    @NotNull
-    @ValidUsername
     private String username;
 
     @Column(name = "password")
-    @NotEmpty
-    @NotNull
     private String password;
+
+    @Transient
+    private String passwordConfirm;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "users_roles",
@@ -55,5 +49,13 @@ public class User {
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
+    }
+
+    public String getPasswordConfirm() {
+        return passwordConfirm;
+    }
+
+    public void setPasswordConfirm(String passwordConfirm) {
+        this.passwordConfirm = passwordConfirm;
     }
 }
